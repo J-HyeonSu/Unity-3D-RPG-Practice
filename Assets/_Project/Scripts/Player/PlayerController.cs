@@ -25,6 +25,11 @@ namespace RpgPractice
         [SerializeField] float jumpDuration = 0.5f;
         [SerializeField] float jumpCooldown = 0f;
         [SerializeField] float gravityMultiplier = 3f;
+        
+        [Header("Attack Setting")] 
+        [SerializeField] float attackCooldown = 0.5f;
+        [SerializeField] float attackDistance = 3f;
+        [SerializeField] float attackDamage = 10f;
 
         private StateMachine stateMachine;
 
@@ -44,6 +49,7 @@ namespace RpgPractice
         private List<Timer> timers;
         private CountdownTimer jumpTimer;
         private CountdownTimer jumpCooldownTimer;
+        private CountdownTimer attackTimer;
         
         //animator parameters
         private static readonly int Speed = Animator.StringToHash("Speed");
@@ -70,8 +76,11 @@ namespace RpgPractice
 
             var locomotionState = new LocomotionState(this, animator);
             var jumpState = new JumpState(this, animator);
+            var attackState = new AttackState(this, animator);
 
             At(locomotionState, jumpState, new FuncPredicate(() => jumpTimer.IsRunning));
+            At(locomotionState, attackState, new FuncPredicate(() => attackTimer.IsRunning));
+            At(attackState, locomotionState, new FuncPredicate(() => !attackTimer.IsRunning));
             
             Any(locomotionState, new FuncPredicate(ReturnToLocomotionState));
 
@@ -82,7 +91,8 @@ namespace RpgPractice
         bool ReturnToLocomotionState()
         {
             return groundChecker.IsGrounded
-                   && !jumpTimer.IsRunning;
+                   && !jumpTimer.IsRunning
+                   && !attackTimer.IsRunning;
         }
 
         void At(IState from, IState to, IPredicate condition)
@@ -103,8 +113,11 @@ namespace RpgPractice
             jumpTimer.OnTimerStart += () => jumpVelocity = jumpForce;
             jumpTimer.OnTimerStop += () => jumpCooldownTimer.Start();
 
+            attackTimer = new CountdownTimer(attackCooldown);
+            
 
-            timers = new List<Timer>(2) { jumpTimer, jumpCooldownTimer };
+
+            timers = new List<Timer>(3) { jumpTimer, jumpCooldownTimer, attackTimer };
         }
 
         void Start()
@@ -145,12 +158,36 @@ namespace RpgPractice
         private void OnEnable()
         {
             inputReader.Jump += OnJump;
-            
+            inputReader.Attack += OnAttack;
+
         }
 
         private void OnDisable()
         {
             inputReader.Jump -= OnJump;
+            inputReader.Attack -= OnAttack;
+        }
+
+        void OnAttack()
+        {
+            if (!attackTimer.IsRunning)
+            {
+                attackTimer.Start();
+            }
+        }
+
+        public void Hit()
+        {
+            Vector3 attackPos = transform.position + transform.forward;
+            Collider[] hitEnemies = Physics.OverlapSphere(attackPos, attackDistance);
+
+            foreach (var hitEnemy in hitEnemies)
+            {
+                // if (hitEnemy.CompareTag("Enemy"))
+                // {
+                //     // 적 데미지 
+                // }
+            }
         }
 
 
@@ -213,7 +250,10 @@ namespace RpgPractice
             if (adjustedDirection.magnitude > ZeroF)
             {
                 HandleHorizontalMovement(adjustedDirection);
-                SmoothSpeed(adjustedDirection.magnitude);
+                
+                // 앞뒤 방향 계산
+                float forwardSpeed = Vector3.Dot(adjustedDirection, transform.forward);
+                SmoothSpeed(forwardSpeed);
             }
             else
             {

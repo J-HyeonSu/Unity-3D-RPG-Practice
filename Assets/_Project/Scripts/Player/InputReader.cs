@@ -12,6 +12,7 @@ namespace RpgPractice
         public event UnityAction EnableMouseControlCamera = delegate { };
         public event UnityAction DisableMouseControlCamera = delegate { };
         public event UnityAction<bool> Jump = delegate { };
+        public event UnityAction Attack = delegate { };
 
         private RpgInputAction inputAction;
 
@@ -77,6 +78,10 @@ namespace RpgPractice
 
         public void OnFire(InputAction.CallbackContext context)
         {
+            if (context.phase == InputActionPhase.Started)
+            {
+                Attack.Invoke();                
+            }
             
         }
 
