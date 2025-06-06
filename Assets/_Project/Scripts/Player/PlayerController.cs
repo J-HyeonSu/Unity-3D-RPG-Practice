@@ -1,27 +1,49 @@
 ﻿using System;
+using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
-using UnityEngine.XR;
+using Utilities;
 
 namespace RpgPractice
 {
     public class PlayerController : MonoBehaviour
     {
         [Header("References")] 
-        [SerializeField] private CharacterController controller;
         [SerializeField] private Animator animator;
         [SerializeField] private CinemachineFreeLook freeLookVCam;
         [SerializeField] private InputReader inputReader;
+        [SerializeField] private Rigidbody rb;
+        [SerializeField] private GroundChecker groundChecker;
         
         [Header("Settings")]
         [SerializeField] private float moveSpeed = 5f;
         [SerializeField] private float rotationSpeed = 15f;
         [SerializeField] private float smoothTime = 0.2f;
+
+        [Header("Jump Setting")] 
+        [SerializeField] float jumpForce = 10f;
+        [SerializeField] float jumpDuration = 0.5f;
+        [SerializeField] float jumpCooldown = 0f;
+        [SerializeField] float gravityMultiplier = 3f;
+
+        private StateMachine stateMachine;
+
+        
+        
+        
         private const float ZeroF = 0f;
 
         private Transform mainCam;
+        
         private float currentSpeed;
         private float velocity;
+        private float jumpVelocity;
+
+        private Vector3 movement;
+
+        private List<Timer> timers;
+        private CountdownTimer jumpTimer;
+        private CountdownTimer jumpCooldownTimer;
         
         //animator parameters
         private static readonly int Speed = Animator.StringToHash("Speed");
@@ -34,6 +56,55 @@ namespace RpgPractice
             freeLookVCam.OnTargetObjectWarped(
                 transform,
                 transform.position - freeLookVCam.transform.position - Vector3.forward);
+
+            rb.freezeRotation = true;
+            
+            SetupTimers();
+
+            SetupStateMachine();
+        }
+
+        private void SetupStateMachine()
+        {
+            stateMachine = new StateMachine();
+
+            var locomotionState = new LocomotionState(this, animator);
+            var jumpState = new JumpState(this, animator);
+
+            At(locomotionState, jumpState, new FuncPredicate(() => jumpTimer.IsRunning));
+            
+            Any(locomotionState, new FuncPredicate(ReturnToLocomotionState));
+
+            
+            stateMachine.SetState(locomotionState);
+        }
+
+        bool ReturnToLocomotionState()
+        {
+            return groundChecker.IsGrounded
+                   && !jumpTimer.IsRunning;
+        }
+
+        void At(IState from, IState to, IPredicate condition)
+        {
+            stateMachine.AddTransition(from, to, condition);
+        }
+
+        void Any(IState to, IPredicate condition)
+        {
+            stateMachine.AddAnyTransition(to, condition);
+        }
+
+        void SetupTimers()
+        {
+            jumpTimer = new CountdownTimer(jumpDuration);
+            jumpCooldownTimer = new CountdownTimer(jumpCooldown);
+
+            jumpTimer.OnTimerStart += () => jumpVelocity = jumpForce;
+            jumpTimer.OnTimerStop += () => jumpCooldownTimer.Start();
+
+
+            timers = new List<Timer>(2) { jumpTimer, jumpCooldownTimer };
         }
 
         void Start()
@@ -45,8 +116,25 @@ namespace RpgPractice
 
         void Update()
         {
-            HandleMovement();
+            movement = new Vector3(inputReader.Direction.x, 0f, inputReader.Direction.y);
+            
+            stateMachine.Update();
+            
+            HandleTimers();
             UpdateAnimator();
+        }
+
+        void HandleTimers()
+        {
+            foreach (var timer in timers)
+            {
+                timer.Tick(Time.deltaTime);
+            }
+        }
+
+        private void FixedUpdate()
+        {
+            stateMachine.FixedUpdate();
         }
 
         private void UpdateAnimator()
@@ -54,24 +142,57 @@ namespace RpgPractice
             animator.SetFloat(Speed, currentSpeed);
         }
 
+        private void OnEnable()
+        {
+            inputReader.Jump += OnJump;
+            
+        }
 
+        private void OnDisable()
+        {
+            inputReader.Jump -= OnJump;
+        }
+
+
+        void OnJump(bool performed)
+        {
+            //true , 점프타이머 false, 쿨다운타이머 false, 그라운드체커true
+            if (performed && !jumpTimer.IsRunning && !jumpCooldownTimer.IsRunning && groundChecker.IsGrounded)
+            {
+                jumpTimer.Start();
+            }
+            else if (!performed && jumpTimer.IsRunning)
+            {
+                //false true
+                jumpTimer.Stop();
+            }
+        }
         public void HandleJump()
         {
+            //점프를 하고있지않고, 땅위에있는경우
+            if (!jumpTimer.IsRunning && groundChecker.IsGrounded)
+            {
+                jumpVelocity = ZeroF;
+                jumpTimer.Stop();
+                return;
+            }
             
+            if (!jumpTimer.IsRunning)
+            {
+                jumpVelocity += Physics.gravity.y * gravityMultiplier * Time.fixedDeltaTime;
+            }
+
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpVelocity, rb.linearVelocity.z);
         }
 
         public void HandleMovement()
         {
-            
-            //입력값의 방향값
-            var movementDirection = new Vector3(inputReader.Direction.x, 0, inputReader.Direction.y).normalized;
             //mainCam.eulerAngles.y - y축 회전값(좌우회전값)
             //Vector3.up 은 Y축(위쪽)
             //AngleAxis는 특정 축을 중심으로 특정 각도만큼 회전하는 회전값 -> Y축 중심으로 mainCam y축값만큼 회전
             //Quaternion과 Vector3을 곱하면 벡터를 회전시킨결과값이 나옴
-            
             var cameraQuat = Quaternion.AngleAxis(mainCam.eulerAngles.y, Vector3.up);
-            var adjustedDirection = cameraQuat * movementDirection;
+            var adjustedDirection = cameraQuat * movement;
 
             //프리룩 모드아닐땐 정면(카메라방향)만 보기
             if (!inputReader.IsFreeLookMode)
@@ -91,27 +212,33 @@ namespace RpgPractice
             
             if (adjustedDirection.magnitude > ZeroF)
             {
-                HandleCharacterController(adjustedDirection);
+                HandleHorizontalMovement(adjustedDirection);
                 SmoothSpeed(adjustedDirection.magnitude);
             }
             else
             {
                 SmoothSpeed(ZeroF);
+
+                rb.linearVelocity = new Vector3(ZeroF, rb.linearVelocity.y, ZeroF);
             }
             
             
         }
-        private void HandleCharacterController(Vector3 adjustedDirection)
+        private void HandleHorizontalMovement(Vector3 adjustedDirection)
         {
-            var adjustedMovement = adjustedDirection * (moveSpeed * Time.deltaTime);
-            controller.Move(adjustedMovement);
+            Vector3 adVelocity = adjustedDirection * (moveSpeed * Time.fixedDeltaTime);
+            
+            rb.linearVelocity = new Vector3(adVelocity.x, rb.linearVelocity.y, adVelocity.z);
+            
+            // var adjustedMovement = adjustedDirection * (moveSpeed * Time.deltaTime);
+            // controller.Move(adjustedMovement);
         }
 
         private void HandleRotation(Quaternion targetRotation)
         {
+            transform.rotation = targetRotation;
             //부드러운 회전
-            transform.rotation =
-                Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            //Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
         
         private void SmoothSpeed(float value)
