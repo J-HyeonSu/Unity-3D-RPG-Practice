@@ -63,7 +63,7 @@ namespace RpgPractice
         
         public void OnFire(InputAction.CallbackContext context)
         {
-            throw new System.NotImplementedException();
+            
         }
 
         

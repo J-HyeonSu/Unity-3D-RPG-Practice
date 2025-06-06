@@ -55,7 +55,12 @@ namespace RpgPractice
         }
 
 
-        void HandleMovement()
+        public void HandleJump()
+        {
+            
+        }
+
+        public void HandleMovement()
         {
             
             //입력값의 방향값
