@@ -14,6 +14,7 @@ namespace RpgPractice
         [SerializeField] private InputReader inputReader;
         [SerializeField] private Rigidbody rb;
         [SerializeField] private GroundChecker groundChecker;
+        [SerializeField] public WeaponManager weaponManager;
         
         [Header("Settings")]
         [SerializeField] private float moveSpeed = 5f;
@@ -43,6 +44,7 @@ namespace RpgPractice
         private float currentSpeed;
         private float velocity;
         private float jumpVelocity;
+        private Vector3 adjustedDirection;
 
         private Vector3 movement;
 
@@ -90,6 +92,7 @@ namespace RpgPractice
 
         bool ReturnToLocomotionState()
         {
+            //기본애니메이션
             return groundChecker.IsGrounded
                    && !jumpTimer.IsRunning
                    && !attackTimer.IsRunning;
@@ -123,6 +126,7 @@ namespace RpgPractice
         void Start()
         {
             inputReader.EnablePlayerActions();
+            weaponManager.ChangeWeapon(WeaponType.Sword);
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
@@ -153,6 +157,9 @@ namespace RpgPractice
         private void UpdateAnimator()
         {
             animator.SetFloat(Speed, currentSpeed);
+            
+            animator.SetFloat("Velocity X", inputReader.Direction.x*currentSpeed);
+            animator.SetFloat("Velocity Z", inputReader.Direction.y*currentSpeed);
         }
 
         private void OnEnable()
@@ -188,6 +195,17 @@ namespace RpgPractice
                 //     // 적 데미지 
                 // }
             }
+        }
+        
+        public void FootL()
+        {
+            // 나중에 발소리 사운드 재생
+            //Debug.Log("왼발 착지!");
+        }
+
+        public void FootR()
+        {
+            //Debug.Log("오른발 착지!");
         }
 
 
@@ -229,7 +247,7 @@ namespace RpgPractice
             //AngleAxis는 특정 축을 중심으로 특정 각도만큼 회전하는 회전값 -> Y축 중심으로 mainCam y축값만큼 회전
             //Quaternion과 Vector3을 곱하면 벡터를 회전시킨결과값이 나옴
             var cameraQuat = Quaternion.AngleAxis(mainCam.eulerAngles.y, Vector3.up);
-            var adjustedDirection = cameraQuat * movement;
+            adjustedDirection = cameraQuat * movement;
 
             //프리룩 모드아닐땐 정면(카메라방향)만 보기
             if (!inputReader.IsFreeLookMode)
@@ -252,8 +270,10 @@ namespace RpgPractice
                 HandleHorizontalMovement(adjustedDirection);
                 
                 // 앞뒤 방향 계산
-                float forwardSpeed = Vector3.Dot(adjustedDirection, transform.forward);
-                SmoothSpeed(forwardSpeed);
+                //float forwardSpeed = Vector3.Dot(adjustedDirection, transform.forward);
+                //SmoothSpeed(forwardSpeed);
+                
+                SmoothSpeed(adjustedDirection.magnitude);
             }
             else
             {

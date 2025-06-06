@@ -12,6 +12,9 @@ namespace RpgPractice
         protected static readonly int DashHash = Animator.StringToHash("Dash");
         protected static readonly int AttackHash = Animator.StringToHash("Attack");
         protected static readonly int DeadHash = Animator.StringToHash("Die");
+        protected static readonly int LocomotionSwordHash = Animator.StringToHash("2Hand-Sword-WalkRun-Blend");
+        
+        
 
         protected const float crossFadeDuration = 0.1f;
 
