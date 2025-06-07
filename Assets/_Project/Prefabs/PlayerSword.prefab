@@ -4324,9 +4324,10 @@ GameObject:
   - component: {fileID: 6237184134830949992}
   - component: {fileID: 8537348830123043866}
   - component: {fileID: 1645158127776169069}
+  - component: {fileID: 2428205756422211172}
   m_Layer: 0
   m_Name: PlayerSword
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4378,7 +4379,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6077230313872936708}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5e658bfc1e524494b9e54a1c92d8c1e0, type: 3}
   m_Name: 
@@ -4533,6 +4534,20 @@ MonoBehaviour:
   weaponType: 0
   weapons:
   - {fileID: 2697892747099803863}
+--- !u!114 &2428205756422211172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6077230313872936708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 365fdc094eb349dd8e43f80a1b98e084, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  playerHealthChannel: {fileID: 11400000, guid: bde24b6995792f34e81521c1744ee0e1, type: 2}
 --- !u!1 &6103077832880385238
 GameObject:
   m_ObjectHideFlags: 0

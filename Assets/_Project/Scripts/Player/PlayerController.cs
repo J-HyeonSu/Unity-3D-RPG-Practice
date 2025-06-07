@@ -187,13 +187,14 @@ namespace RpgPractice
         {
             Vector3 attackPos = transform.position + transform.forward;
             Collider[] hitEnemies = Physics.OverlapSphere(attackPos, attackDistance);
-
+            
             foreach (var hitEnemy in hitEnemies)
             {
-                // if (hitEnemy.CompareTag("Enemy"))
-                // {
-                //     // 적 데미지 
-                // }
+                if (hitEnemy.CompareTag("Enemy"))
+                {
+                    // 적 데미지 
+                    hitEnemy.GetComponent<Health>().TakeDamage(attackDamage);
+                }
             }
         }
         

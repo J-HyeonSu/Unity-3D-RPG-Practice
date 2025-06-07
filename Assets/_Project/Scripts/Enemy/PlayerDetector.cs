@@ -12,7 +12,7 @@ namespace RpgPractice
         [SerializeField] private float attackRange = 2f;
         
         public Transform Player { get; private set; }
-        //public Health PlayerHealth { get; private set; }
+        public Health PlayerHealth { get; private set; }
         
         private CountdownTimer detectionTimer;
 
@@ -21,7 +21,7 @@ namespace RpgPractice
         void Awake()
         {
             Player = GameObject.FindGameObjectWithTag("Player").transform;
-            //PlayerHealth = Player.GetComponent<Health>();
+            PlayerHealth = Player.GetComponent<Health>();
         }
 
         private void Start()
