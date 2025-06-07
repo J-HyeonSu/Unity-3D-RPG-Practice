@@ -8,7 +8,7 @@ namespace RpgPractice
 
         [SerializeField] private float maxHealth = 100;
         [SerializeField] private FloatEventChannel playerHealthChannel;
-
+        
         private float currentHealth;
 
         public bool IsDead => currentHealth <= 0;
@@ -25,6 +25,7 @@ namespace RpgPractice
 
         public void TakeDamage(float damage)
         {
+            DamagePopUpGenerator.current.CreatePopUp(transform.position, damage.ToString(), Color.cyan);
             currentHealth -= damage;
             PublishHealthPercentage();
         }

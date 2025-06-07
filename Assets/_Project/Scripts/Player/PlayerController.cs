@@ -31,6 +31,7 @@ namespace RpgPractice
         [SerializeField] float attackCooldown = 0.5f;
         [SerializeField] float attackDistance = 3f;
         [SerializeField] float attackDamage = 10f;
+        [SerializeField] int attackMaxCombo = 2;
 
         private StateMachine stateMachine;
 
@@ -41,17 +42,23 @@ namespace RpgPractice
 
         private Transform mainCam;
         
+        private Vector3 movement;
         private float currentSpeed;
         private float velocity;
         private float jumpVelocity;
         private Vector3 adjustedDirection;
 
-        private Vector3 movement;
+        //attack
+        private int attackCombo = 1;
+        private bool subAttacking;
+        private bool mainAttacking;
+        
 
         private List<Timer> timers;
         private CountdownTimer jumpTimer;
         private CountdownTimer jumpCooldownTimer;
-        private CountdownTimer attackTimer;
+        
+        
         
         //animator parameters
         private static readonly int Speed = Animator.StringToHash("Speed");
@@ -79,11 +86,15 @@ namespace RpgPractice
             var locomotionState = new LocomotionState(this, animator);
             var jumpState = new JumpState(this, animator);
             var attackState = new AttackState(this, animator);
+            var subAttackState = new SubAttackState(this, animator);
 
             At(locomotionState, jumpState, new FuncPredicate(() => jumpTimer.IsRunning));
-            At(locomotionState, attackState, new FuncPredicate(() => attackTimer.IsRunning));
-            At(attackState, locomotionState, new FuncPredicate(() => !attackTimer.IsRunning));
+            //At(locomotionState, attackState, new FuncPredicate(() => attackTimer.IsRunning));
+            //At(attackState, locomotionState, new FuncPredicate(() => !attackTimer.IsRunning));
             
+            
+            Any(attackState,new FuncPredicate(() => mainAttacking));
+            Any(subAttackState, new FuncPredicate(() => subAttacking));
             Any(locomotionState, new FuncPredicate(ReturnToLocomotionState));
 
             
@@ -95,7 +106,8 @@ namespace RpgPractice
             //기본애니메이션
             return groundChecker.IsGrounded
                    && !jumpTimer.IsRunning
-                   && !attackTimer.IsRunning;
+                   && !mainAttacking
+                   && !subAttacking;
         }
 
         void At(IState from, IState to, IPredicate condition)
@@ -115,18 +127,17 @@ namespace RpgPractice
 
             jumpTimer.OnTimerStart += () => jumpVelocity = jumpForce;
             jumpTimer.OnTimerStop += () => jumpCooldownTimer.Start();
-
-            attackTimer = new CountdownTimer(attackCooldown);
+            
             
 
 
-            timers = new List<Timer>(3) { jumpTimer, jumpCooldownTimer, attackTimer };
+            timers = new List<Timer>(2) { jumpTimer, jumpCooldownTimer };
         }
 
         void Start()
         {
             inputReader.EnablePlayerActions();
-            weaponManager.ChangeWeapon(WeaponType.Sword);
+            weaponManager.ChangeWeapon(weaponManager.CurrentWeapon);
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
@@ -139,6 +150,7 @@ namespace RpgPractice
             
             HandleTimers();
             UpdateAnimator();
+            
         }
 
         void HandleTimers()
@@ -160,12 +172,14 @@ namespace RpgPractice
             
             animator.SetFloat("Velocity X", inputReader.Direction.x*currentSpeed);
             animator.SetFloat("Velocity Z", inputReader.Direction.y*currentSpeed);
+            animator.SetInteger("AttackNum", attackCombo);
         }
 
         private void OnEnable()
         {
             inputReader.Jump += OnJump;
             inputReader.Attack += OnAttack;
+            inputReader.SubAttack += OnSubAttack;
 
         }
 
@@ -173,29 +187,70 @@ namespace RpgPractice
         {
             inputReader.Jump -= OnJump;
             inputReader.Attack -= OnAttack;
+            inputReader.SubAttack -= OnSubAttack;
+        }
+
+        void OnSubAttack()
+        {
+            if (!subAttacking)
+            {
+                subAttacking = true;
+                mainAttacking = false;
+                attackCombo = 1;
+            }
         }
 
         void OnAttack()
         {
-            if (!attackTimer.IsRunning)
+            if (!mainAttacking)
             {
-                attackTimer.Start();
+                mainAttacking = true;
+                subAttacking = false;
             }
+            else if (attackCombo < attackMaxCombo)
+            {
+                attackCombo++;
+            }
+            
         }
 
         public void Hit()
         {
             Vector3 attackPos = transform.position + transform.forward;
             Collider[] hitEnemies = Physics.OverlapSphere(attackPos, attackDistance);
-            
+
+            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            float damage = attackDamage;
             foreach (var hitEnemy in hitEnemies)
             {
                 if (hitEnemy.CompareTag("Enemy"))
                 {
+                    if (stateInfo.IsName("Attack1"))
+                    {
+                        damage = attackDamage;
+                    }
+                    else if (stateInfo.IsName("Attack2"))
+                    {
+                        damage = attackDamage*1.2f;
+                    }
+                    else if (stateInfo.IsName("SubAttack"))
+                    {
+                        damage = attackDamage*1.5f;
+                    }
                     // 적 데미지 
-                    hitEnemy.GetComponent<Health>().TakeDamage(attackDamage);
+                    hitEnemy.GetComponent<Health>().TakeDamage(damage);
+                    
+                    
+                    
                 }
             }
+        }
+
+        public void AttackEnd()
+        {
+            mainAttacking = false;
+            attackCombo = 1;
+            subAttacking = false;
         }
         
         public void FootL()

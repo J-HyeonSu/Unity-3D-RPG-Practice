@@ -2,26 +2,21 @@
 
 namespace RpgPractice
 {
-    public class AttackState : BaseState
+    public class SubAttackState : BaseState
     {
-        
-        public AttackState(PlayerController player, Animator animator) : base(player, animator)
+        public SubAttackState(PlayerController player, Animator animator) : base(player, animator)
         {
         }
 
         public override void OnEnter()
         {
-            animator.CrossFade(AttackHash, crossFadeDuration);
-            //player.Attack();
-  
+            animator.CrossFade(SubAttackHash, crossFadeDuration);
         }
         
-
-
-
         public override void FixedUpdate()
         {
             player.HandleMovement();
         }
+
     }
 }
