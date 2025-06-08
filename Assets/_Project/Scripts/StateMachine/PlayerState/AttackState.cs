@@ -13,10 +13,14 @@ namespace RpgPractice
         {
             animator.CrossFade(AttackHash, crossFadeDuration);
             //player.Attack();
+            
   
         }
-        
 
+        public override void Update()
+        {
+            
+        }
 
 
         public override void FixedUpdate()

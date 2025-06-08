@@ -10,7 +10,7 @@ namespace RpgPractice
         protected static readonly int LocomotionHash = Animator.StringToHash("Locomotion");
         protected static readonly int JumpHash = Animator.StringToHash("Jump");
         protected static readonly int DashHash = Animator.StringToHash("Dash");
-        protected static readonly int AttackHash = Animator.StringToHash("Attack");
+        protected static readonly int AttackHash = Animator.StringToHash("Attack1");
         protected static readonly int SubAttackHash = Animator.StringToHash("SubAttack");
         protected static readonly int DeadHash = Animator.StringToHash("Die");
         protected static readonly int LocomotionSwordHash = Animator.StringToHash("2Hand-Sword-WalkRun-Blend");

@@ -31,11 +31,14 @@ namespace RpgPractice
         [SerializeField] float attackCooldown = 0.5f;
         [SerializeField] float attackDistance = 3f;
         [SerializeField] float attackDamage = 10f;
-        [SerializeField] int attackMaxCombo = 2;
 
-        private StateMachine stateMachine;
-
+        [Header("Cinemachine")]
+        public GameObject CinemachineCameraTarget;
+        public float TopClamp = 70.0f;
+        public float BottomClamp = -30.0f;
         
+        
+        private StateMachine stateMachine;
         
         
         private const float ZeroF = 0f;
@@ -49,14 +52,18 @@ namespace RpgPractice
         private Vector3 adjustedDirection;
 
         //attack
-        private int attackCombo = 1;
+        private int attackNum = 1;
         private bool subAttacking;
         private bool mainAttacking;
+        private bool isCombo;
+
+        private bool canAttack = true;
         
 
         private List<Timer> timers;
         private CountdownTimer jumpTimer;
         private CountdownTimer jumpCooldownTimer;
+        private CountdownTimer attackLeftTimer;
         
         
         
@@ -93,7 +100,7 @@ namespace RpgPractice
             //At(attackState, locomotionState, new FuncPredicate(() => !attackTimer.IsRunning));
             
             
-            Any(attackState,new FuncPredicate(() => mainAttacking));
+            Any(attackState,new FuncPredicate(() => attackLeftTimer.IsRunning));
             Any(subAttackState, new FuncPredicate(() => subAttacking));
             Any(locomotionState, new FuncPredicate(ReturnToLocomotionState));
 
@@ -127,11 +134,12 @@ namespace RpgPractice
 
             jumpTimer.OnTimerStart += () => jumpVelocity = jumpForce;
             jumpTimer.OnTimerStop += () => jumpCooldownTimer.Start();
-            
-            
 
+            attackLeftTimer = new CountdownTimer(attackCooldown);
 
-            timers = new List<Timer>(2) { jumpTimer, jumpCooldownTimer };
+            attackLeftTimer.OnTimerStop += () => isCombo = false;
+
+            timers = new List<Timer>(3) { jumpTimer, jumpCooldownTimer, attackLeftTimer };
         }
 
         void Start()
@@ -150,7 +158,17 @@ namespace RpgPractice
             
             HandleTimers();
             UpdateAnimator();
-            
+
+            // if (Input.GetKeyDown(KeyCode.F1))
+            // {
+            //     var projectile = GameManager.instance.poolManager.Get(1);
+            //     
+            // }
+            // if (Input.GetKeyDown(KeyCode.F2))
+            // {
+            //     var projectile = GameManager.instance.poolManager.Get(2);
+            // }
+
         }
 
         void HandleTimers()
@@ -172,7 +190,7 @@ namespace RpgPractice
             
             animator.SetFloat("Velocity X", inputReader.Direction.x*currentSpeed);
             animator.SetFloat("Velocity Z", inputReader.Direction.y*currentSpeed);
-            animator.SetInteger("AttackNum", attackCombo);
+            animator.SetInteger("AttackNum", attackNum);
         }
 
         private void OnEnable()
@@ -194,64 +212,118 @@ namespace RpgPractice
         {
             if (!subAttacking)
             {
+                attackLeftTimer.Stop();
                 subAttacking = true;
-                mainAttacking = false;
-                attackCombo = 1;
+                isCombo = false;
+                attackNum = 3;
+                
             }
         }
 
         void OnAttack()
         {
-            if (!mainAttacking)
+            if (!attackLeftTimer.IsRunning)
             {
-                mainAttacking = true;
+                attackLeftTimer.Start();
                 subAttacking = false;
+                isCombo = false;
+                attackNum = 1;
+                
             }
-            else if (attackCombo < attackMaxCombo)
+            else if(attackNum < 2 && isCombo == false)
             {
-                attackCombo++;
+                isCombo = true;
+                attackNum = 2;
+                //attackLeftTimer.Reset();
             }
-            
+        }
+
+        void AttackEvent(int prefabNum, float length, float speed, float damage)
+        {
+            var proj = GameManager.instance.poolManager.Get(prefabNum);
+            proj.GetComponentInChildren<Projectile>().Init(transform.position, transform.forward,length, speed, damage);
         }
 
         public void Hit()
         {
-            Vector3 attackPos = transform.position + transform.forward;
-            Collider[] hitEnemies = Physics.OverlapSphere(attackPos, attackDistance);
-
+            canAttack = true;
+            
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            
             float damage = attackDamage;
-            foreach (var hitEnemy in hitEnemies)
+            if (stateInfo.IsName("Attack1"))
             {
-                if (hitEnemy.CompareTag("Enemy"))
-                {
-                    if (stateInfo.IsName("Attack1"))
-                    {
-                        damage = attackDamage;
-                    }
-                    else if (stateInfo.IsName("Attack2"))
-                    {
-                        damage = attackDamage*1.2f;
-                    }
-                    else if (stateInfo.IsName("SubAttack"))
-                    {
-                        damage = attackDamage*1.5f;
-                    }
-                    // 적 데미지 
-                    hitEnemy.GetComponent<Health>().TakeDamage(damage);
-                    
-                    
-                    
-                }
+                damage = attackDamage;
+                AttackEvent(1, 5, 30, damage);
             }
+            else if (stateInfo.IsName("Attack2"))
+            {
+                damage = attackDamage*1.2f;
+                AttackEvent(2, 7, 10, damage);
+            }
+            else if (stateInfo.IsName("SubAttack"))
+            {
+                damage = attackDamage*1.5f;
+                AttackEvent(3, 7, 10, damage);
+            }
+
+            // switch (attackNum)
+            // {
+            //     case 1:
+            //         AttackEvent(attackNum, 5, 30, damage);
+            //         break;
+            //     case 2:
+            //         damage = attackDamage * 1.2f;
+            //         AttackEvent(attackNum, 7, 10, damage);
+            //         break;
+            //     case 3:
+            //         damage = attackDamage * 1.5f;
+            //         AttackEvent(attackNum, 7, 10, damage);
+            //         break;
+            //         
+            // }
+
+            // Vector3 attackPos = transform.position + transform.forward;
+            // Collider[] hitEnemies = Physics.OverlapSphere(attackPos, attackDistance);
+
+            //
+            //
+            // foreach (var hitEnemy in hitEnemies)
+            // {
+            //     if (hitEnemy.CompareTag("Enemy"))
+            //     {
+            //         if (stateInfo.IsName("Attack1"))
+            //         {
+            //             damage = attackDamage;
+            //         }
+            //         else if (stateInfo.IsName("Attack2"))
+            //         {
+            //             damage = attackDamage*1.2f;
+            //         }
+            //         else if (stateInfo.IsName("SubAttack"))
+            //         {
+            //             damage = attackDamage*1.5f;
+            //         }
+            //         // 적 데미지 
+            //         hitEnemy.GetComponent<Health>().TakeDamage(damage);
+            //         
+            //         
+            //     }
+            // }
         }
 
         public void AttackEnd()
         {
+            //AttackEnd가 애니메이션도중 실행이 안될때가있음
             mainAttacking = false;
-            attackCombo = 1;
             subAttacking = false;
+            attackNum = 0;
+            isCombo = false;
+            attackLeftTimer.Stop();
+
         }
+        
+        
         
         public void FootL()
         {
@@ -302,7 +374,8 @@ namespace RpgPractice
             //Vector3.up 은 Y축(위쪽)
             //AngleAxis는 특정 축을 중심으로 특정 각도만큼 회전하는 회전값 -> Y축 중심으로 mainCam y축값만큼 회전
             //Quaternion과 Vector3을 곱하면 벡터를 회전시킨결과값이 나옴
-            var cameraQuat = Quaternion.AngleAxis(mainCam.eulerAngles.y, Vector3.up);
+            //var cameraQuat = Quaternion.AngleAxis(mainCam.eulerAngles.y, Vector3.up);
+            var cameraQuat = Quaternion.AngleAxis(freeLookVCam.m_XAxis.Value, Vector3.up);
             adjustedDirection = cameraQuat * movement;
 
             //프리룩 모드아닐땐 정면(카메라방향)만 보기
