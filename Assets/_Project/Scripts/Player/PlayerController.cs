@@ -10,11 +10,13 @@ namespace RpgPractice
     {
         [Header("References")] 
         [SerializeField] private Animator animator;
-        [SerializeField] private CinemachineFreeLook freeLookVCam;
+        [SerializeField] private CinemachineVirtualCamera cineVCam;
+        [SerializeField] private GameObject followCameraRoot;
         [SerializeField] private InputReader inputReader;
         [SerializeField] private Rigidbody rb;
         [SerializeField] private GroundChecker groundChecker;
         [SerializeField] public WeaponManager weaponManager;
+        
         
         [Header("Settings")]
         [SerializeField] private float moveSpeed = 5f;
@@ -33,9 +35,7 @@ namespace RpgPractice
         [SerializeField] float attackDamage = 10f;
 
         [Header("Cinemachine")]
-        public GameObject CinemachineCameraTarget;
-        public float TopClamp = 70.0f;
-        public float BottomClamp = -30.0f;
+        private const float angleThreshold = 0.5f; // 0.5도 이상 변할 때만 적용
         
         
         private StateMachine stateMachine;
@@ -47,8 +47,11 @@ namespace RpgPractice
         
         private Vector3 movement;
         private float currentSpeed;
+        private float currentVelocityX;
+        private float currentVelocityZ;
         private float velocity;
         private float jumpVelocity;
+        
         private Vector3 adjustedDirection;
 
         //attack
@@ -65,19 +68,28 @@ namespace RpgPractice
         private CountdownTimer jumpCooldownTimer;
         private CountdownTimer attackLeftTimer;
         
+        //test
+        private float TopClamp = 90f;
+        private float BottomClamp = -40f;
+        private float cinemachineTargetYaw;
+        private float cinemachineTargetPitch;
+        
+        private bool isLookingAtCharacter;
         
         
         //animator parameters
         private static readonly int Speed = Animator.StringToHash("Speed");
+        
+        
 
         void Awake()
         {
             mainCam = Camera.main.transform;
-            freeLookVCam.Follow = transform;
-            freeLookVCam.LookAt = transform;
-            freeLookVCam.OnTargetObjectWarped(
-                transform,
-                transform.position - freeLookVCam.transform.position - Vector3.forward);
+            cineVCam.Follow = followCameraRoot.transform;
+            cineVCam.LookAt = followCameraRoot.transform;
+            cineVCam.OnTargetObjectWarped(
+                followCameraRoot.transform,
+                followCameraRoot.transform.position - cineVCam.transform.position - Vector3.forward);
 
             rb.freezeRotation = true;
             
@@ -158,6 +170,24 @@ namespace RpgPractice
             
             HandleTimers();
             UpdateAnimator();
+            
+            if (Input.GetMouseButtonDown(2))
+            {
+                if (!isLookingAtCharacter)
+                {
+                    // 기본 -> 자유
+                    // 현재 카메라 타겟의 각도를 가져와서 동기화
+                    Vector3 currentEuler = followCameraRoot.transform.eulerAngles;
+                    cinemachineTargetYaw = currentEuler.y;
+                    cinemachineTargetPitch = currentEuler.x;
+    
+                    // 360도 처리
+                    if (cinemachineTargetPitch > 180f)
+                        cinemachineTargetPitch -= 360f;
+                }
+                isLookingAtCharacter = !isLookingAtCharacter;
+                
+            }
 
             // if (Input.GetKeyDown(KeyCode.F1))
             // {
@@ -178,7 +208,7 @@ namespace RpgPractice
                 timer.Tick(Time.deltaTime);
             }
         }
-
+        
         private void FixedUpdate()
         {
             stateMachine.FixedUpdate();
@@ -188,13 +218,28 @@ namespace RpgPractice
         {
             animator.SetFloat(Speed, currentSpeed);
             
-            animator.SetFloat("Velocity X", inputReader.Direction.x*currentSpeed);
-            animator.SetFloat("Velocity Z", inputReader.Direction.y*currentSpeed);
+            // locomotion 캐릭터 이동 관련
+            // 목표 속도 계산
+            float targetVelocityX = inputReader.Direction.x * currentSpeed;
+            float targetVelocityZ = inputReader.Direction.y * currentSpeed;
+
+            currentVelocityX = SmoothSpeed(currentVelocityX, targetVelocityX);
+            currentVelocityZ = SmoothSpeed(currentVelocityZ, targetVelocityZ);
+
+            currentVelocityX = inputReader.Direction.x * currentSpeed;
+            currentVelocityZ = inputReader.Direction.y * currentSpeed;
+            
+            
+            animator.SetFloat("Velocity X", currentVelocityX);
+            animator.SetFloat("Velocity Z", currentVelocityZ);
             animator.SetInteger("AttackNum", attackNum);
         }
 
         private void OnEnable()
         {
+            //test
+            inputReader.Look += OnLook;
+            
             inputReader.Jump += OnJump;
             inputReader.Attack += OnAttack;
             inputReader.SubAttack += OnSubAttack;
@@ -203,10 +248,57 @@ namespace RpgPractice
 
         private void OnDisable()
         {
+            //test
+            inputReader.Look -= OnLook;
+            
             inputReader.Jump -= OnJump;
             inputReader.Attack -= OnAttack;
             inputReader.SubAttack -= OnSubAttack;
         }
+        
+        void OnLook(Vector2 cameraMovement, bool isDeviceMouse)
+        {
+    
+            if (cameraMovement.magnitude >= 0.01f)
+            {
+                float deviceMultiplier = isDeviceMouse ? Time.fixedDeltaTime : Time.deltaTime;
+                
+                if (isLookingAtCharacter)
+                {
+                    // 자유 시점 모드
+                    // 캐릭터 쳐다보기 모드 - 카메라만 회전
+                    cinemachineTargetYaw += cameraMovement.x * deviceMultiplier;
+                    cinemachineTargetPitch += -cameraMovement.y * deviceMultiplier;
+                
+                    cinemachineTargetYaw = ClampAngle(cinemachineTargetYaw, float.MinValue, float.MaxValue);
+                    cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, BottomClamp, TopClamp);
+                
+                    followCameraRoot.transform.rotation = Quaternion.Euler(cinemachineTargetPitch, cinemachineTargetYaw, 0.0f);
+                    
+                }
+                else
+                {
+                    // 일반 시점
+                    // 캐릭터 Y축 회전 (마우스 X)
+                    transform.Rotate(0, cameraMovement.x * deviceMultiplier, 0);
+
+                    // 카메라 상하 회전 (마우스 Y)
+                    cinemachineTargetPitch += -cameraMovement.y * deviceMultiplier;
+                    cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, -30, 70);
+        
+                    followCameraRoot.transform.localRotation = Quaternion.Euler(cinemachineTargetPitch, 0, 0);
+                }
+                
+            }
+        }
+        
+        private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
+        {
+            if (lfAngle < -360f) lfAngle += 360f;
+            if (lfAngle > 360f) lfAngle -= 360f;
+            return Mathf.Clamp(lfAngle, lfMin, lfMax);
+        }
+        
 
         void OnSubAttack()
         {
@@ -246,6 +338,7 @@ namespace RpgPractice
 
         public void Hit()
         {
+            
             canAttack = true;
             
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
@@ -375,40 +468,25 @@ namespace RpgPractice
             //AngleAxis는 특정 축을 중심으로 특정 각도만큼 회전하는 회전값 -> Y축 중심으로 mainCam y축값만큼 회전
             //Quaternion과 Vector3을 곱하면 벡터를 회전시킨결과값이 나옴
             //var cameraQuat = Quaternion.AngleAxis(mainCam.eulerAngles.y, Vector3.up);
-            var cameraQuat = Quaternion.AngleAxis(freeLookVCam.m_XAxis.Value, Vector3.up);
+            
+            //메인카메라의 회전값
+            float currentCameraAngle = mainCam.eulerAngles.y;
+            
+            var cameraQuat = Quaternion.AngleAxis(mainCam.eulerAngles.y, Vector3.up);
             adjustedDirection = cameraQuat * movement;
-
-            //프리룩 모드아닐땐 정면(카메라방향)만 보기
-            if (!inputReader.IsFreeLookMode)
-            {
-                HandleRotation(cameraQuat);
-            }
-            //프리룩모드일때 가는 방향 보기
-            else
-            {
-                if (adjustedDirection.magnitude > ZeroF)
-                {
-                    HandleRotation(Quaternion.LookRotation(adjustedDirection));
-                }
-                
-            }
             
             
             if (adjustedDirection.magnitude > ZeroF)
             {
                 HandleHorizontalMovement(adjustedDirection);
                 
-                // 앞뒤 방향 계산
-                //float forwardSpeed = Vector3.Dot(adjustedDirection, transform.forward);
-                //SmoothSpeed(forwardSpeed);
-                
-                SmoothSpeed(adjustedDirection.magnitude);
+                currentSpeed = SmoothSpeed(currentSpeed, adjustedDirection.magnitude);
             }
             else
             {
-                SmoothSpeed(ZeroF);
-
+                currentSpeed = SmoothSpeed(currentSpeed, ZeroF);
                 rb.linearVelocity = new Vector3(ZeroF, rb.linearVelocity.y, ZeroF);
+                
             }
             
             
@@ -430,9 +508,9 @@ namespace RpgPractice
             //Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
         
-        private void SmoothSpeed(float value)
+        private float SmoothSpeed(float speed, float value)
         {
-            currentSpeed = Mathf.SmoothDamp(currentSpeed, value, ref velocity, smoothTime);
+            return Mathf.SmoothDamp(speed, value, ref velocity, smoothTime);
         }
     }
 }

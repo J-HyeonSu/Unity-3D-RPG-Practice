@@ -17,8 +17,6 @@ namespace RpgPractice
         
         public WeaponType CurrentWeapon => weaponType;
         
-        
-
         public void ChangeWeapon(WeaponType newWeaponType)
         {
             // 모든 무기 비활성화

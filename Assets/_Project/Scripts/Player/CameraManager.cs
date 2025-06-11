@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Cinemachine;
 using UnityEngine;
 
@@ -22,35 +23,48 @@ namespace RpgPractice
         private bool isButtonPressed;
         private bool cameraMovementLock;
 
+        private void Start()
+        {
+            cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
+            cinemachineTargetPitch = CinemachineCameraTarget.transform.rotation.eulerAngles.x;
+        }
+
         void OnEnable()
         {
-            input.Look += OnLook;
-            input.EnableMouseControlCamera += OnEnableMouseControlCamera;
-            input.DisableMouseControlCamera += OnDisableMouseControlCamera;
+            // input.Look += OnLook;
+            // input.EnableMouseControlCamera += OnEnableMouseControlCamera;
+            // input.DisableMouseControlCamera += OnDisableMouseControlCamera;
             
         }
         void OnDisable()
         {
-            input.Look -= OnLook;
-            input.EnableMouseControlCamera -= OnEnableMouseControlCamera;
-            input.DisableMouseControlCamera -= OnDisableMouseControlCamera;
+            // input.Look -= OnLook;
+            // input.EnableMouseControlCamera -= OnEnableMouseControlCamera;
+            // input.DisableMouseControlCamera -= OnDisableMouseControlCamera;
         }
 
         
         void OnLook(Vector2 cameraMovement, bool isDeviceMouse)
         {
             if (cameraMovementLock) return;
+            
+            
+            if (cameraMovement.magnitude >= 0.01f)
+            {
+                float deviceMultiplier = isDeviceMouse ? Time.fixedDeltaTime : Time.deltaTime;
+                cinemachineTargetYaw += cameraMovement.x * deviceMultiplier;
+                cinemachineTargetPitch += -cameraMovement.y * deviceMultiplier;
+            }
             //if (isDeviceMouse && !isButtonPressed) return;
-
-            float deviceMultiplier = isDeviceMouse ? Time.fixedDeltaTime : Time.deltaTime;
+            
+            
             // freeLookVCam.m_XAxis.m_InputAxisValue = cameraMovement.x * speedMultiplier * deviceMultiplier;
             // freeLookVCam.m_YAxis.m_InputAxisValue = cameraMovement.y * speedMultiplier * deviceMultiplier;
-
-            cinemachineTargetPitch = Mathf.Clamp(cinemachineTargetPitch, BottomClamp, TopClamp);
+            //cinemachineTargetPitch = Mathf.Clamp(cinemachineTargetPitch, BottomClamp, TopClamp);
             
-            cinemachineTargetYaw += cameraMovement.x * deviceMultiplier;
-            cinemachineTargetPitch += -cameraMovement.y * deviceMultiplier;
             
+            
+			//각도 제한
             cinemachineTargetYaw = ClampAngle(cinemachineTargetYaw, float.MinValue, float.MaxValue);
             cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, BottomClamp, TopClamp);
 

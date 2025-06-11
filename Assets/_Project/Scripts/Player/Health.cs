@@ -3,8 +3,10 @@ using UnityEngine;
 
 namespace RpgPractice
 {
+
     public class Health : MonoBehaviour
     {
+
 
         [SerializeField] private float maxHealth = 100;
         [SerializeField] private FloatEventChannel playerHealthChannel;
@@ -21,6 +23,7 @@ namespace RpgPractice
         private void Start()
         {
             PublishHealthPercentage();
+
         }
 
         public void TakeDamage(float damage)
