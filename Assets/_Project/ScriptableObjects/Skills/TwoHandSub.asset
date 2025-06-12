@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TwoHandSub
   m_EditorClassIdentifier: 
   prefab: {fileID: 8554229276402996251, guid: 5fc116f0d76ac4d4092aad3d3aeaebfc, type: 3}
-  speed: 30
+  speed: 25
   damageCoefficient: 1.5
   length: 5
   lifeTime: 10

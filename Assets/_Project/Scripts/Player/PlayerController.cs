@@ -345,7 +345,6 @@ namespace RpgPractice
                 attackLeftTimer.Stop();
                 subAttacking = true;
                 isCombo = false;
-                attackNum = 3;
                 
             }
         }
@@ -357,13 +356,13 @@ namespace RpgPractice
                 attackLeftTimer.Start();
                 subAttacking = false;
                 isCombo = false;
-                attackNum = 1;
+                animator.SetBool("LeftCombo", isCombo);
                 
             }
-            else if(attackNum < 2 && isCombo == false)
+            else if(!isCombo)
             {
                 isCombo = true;
-                attackNum = 2;
+                animator.SetBool("LeftCombo", isCombo);
                 //attackLeftTimer.Reset();
             }
         }
@@ -381,14 +380,17 @@ namespace RpgPractice
             if (stateInfo.IsName("Attack1"))
             {
                 skillSystem.UseSkill(SkillType.Attack1, transform.position, transform.forward, attackPower);
+                attackNum = 1;
             }
             else if (stateInfo.IsName("Attack2"))
             {
                 skillSystem.UseSkill(SkillType.Attack2, transform.position, transform.forward, attackPower);
+                attackNum = 2;
             }
             else if (stateInfo.IsName("SubAttack"))
             {
                 skillSystem.UseSkill(SkillType.SubAttack, transform.position, transform.forward, attackPower);
+                attackNum = 3;
             }
 
             // switch (attackNum)
@@ -439,11 +441,19 @@ namespace RpgPractice
         public void AttackEnd()
         {
             //AttackEnd가 애니메이션도중 실행이 안될때가있음
-            mainAttacking = false;
-            subAttacking = false;
-            attackNum = 0;
-            isCombo = false;
-            attackLeftTimer.Stop();
+            //공격1이 끝난후 AttackEnd가 없어서 타이머대기시간이 있음.
+            //공격1에 조건을 걸면 Attack2가 실행안됨
+
+            //이제 2번째공격때 attack2 지연시간이 있음
+            
+            if (!isCombo || attackNum == 2)
+            {
+                mainAttacking = false;
+                subAttacking = false;
+                attackNum = 0;
+                attackLeftTimer.Stop();
+            }
+            
 
         }
         
