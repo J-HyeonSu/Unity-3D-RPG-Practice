@@ -16,12 +16,15 @@ namespace RpgPractice
         [SerializeField] private Rigidbody rb;
         [SerializeField] private GroundChecker groundChecker;
         [SerializeField] public WeaponManager weaponManager;
+        [SerializeField] private SkillSystem skillSystem;
         
         
         [Header("Settings")]
-        [SerializeField] private float moveSpeed = 5f;
+        [SerializeField] private float moveSpeed;
+        [SerializeField] private float walkSpeed = 150f;
+        [SerializeField] private float runSpeed = 400f;
         [SerializeField] private float rotationSpeed = 15f;
-        [SerializeField] private float smoothTime = 0.2f;
+        [SerializeField] private float smoothTime = 0.05f;
 
         [Header("Jump Setting")] 
         [SerializeField] float jumpForce = 10f;
@@ -32,7 +35,7 @@ namespace RpgPractice
         [Header("Attack Setting")] 
         [SerializeField] float attackCooldown = 0.5f;
         [SerializeField] float attackDistance = 3f;
-        [SerializeField] float attackDamage = 10f;
+        [SerializeField] float attackPower = 10f;
 
         [Header("Cinemachine")]
         private const float angleThreshold = 0.5f; // 0.5도 이상 변할 때만 적용
@@ -45,6 +48,7 @@ namespace RpgPractice
 
         private Transform mainCam;
         
+        //movement
         private Vector3 movement;
         private float currentSpeed;
         private float currentVelocityX;
@@ -59,21 +63,24 @@ namespace RpgPractice
         private bool subAttacking;
         private bool mainAttacking;
         private bool isCombo;
-
-        private bool canAttack = true;
         
-
+        
+        //timer
         private List<Timer> timers;
         private CountdownTimer jumpTimer;
         private CountdownTimer jumpCooldownTimer;
         private CountdownTimer attackLeftTimer;
         
         //test
+        private float smoothedCameraY;
+        private float cameraYVelocity;
+        private bool canAttack = true;
+        
+        // cinemachin camera
         private float TopClamp = 90f;
         private float BottomClamp = -40f;
         private float cinemachineTargetYaw;
         private float cinemachineTargetPitch;
-        
         private bool fixedCameraMode = true;
         
         
@@ -170,7 +177,23 @@ namespace RpgPractice
             
             HandleTimers();
             
-            
+            //test code inputreader 사용해야함
+            HandleCameraToggle();
+
+            // if (Input.GetKeyDown(KeyCode.F1))
+            // {
+            //     var projectile = GameManager.instance.poolManager.Get(1);
+            //     
+            // }
+            // if (Input.GetKeyDown(KeyCode.F2))
+            // {
+            //     var projectile = GameManager.instance.poolManager.Get(2);
+            // }
+
+        }
+
+        private void HandleCameraToggle()
+        {
             if (Input.GetMouseButtonDown(2))
             {
                 fixedCameraMode = !fixedCameraMode;
@@ -205,17 +228,6 @@ namespace RpgPractice
                 
                 
             }
-
-            // if (Input.GetKeyDown(KeyCode.F1))
-            // {
-            //     var projectile = GameManager.instance.poolManager.Get(1);
-            //     
-            // }
-            // if (Input.GetKeyDown(KeyCode.F2))
-            // {
-            //     var projectile = GameManager.instance.poolManager.Get(2);
-            // }
-
         }
 
         void HandleTimers()
@@ -252,10 +264,13 @@ namespace RpgPractice
             animator.SetFloat("Velocity Z", currentVelocityZ);
             animator.SetInteger("AttackNum", attackNum);
         }
+        
+        
 
         private void OnEnable()
         {
             //test
+            inputReader.Dash += OnDash;
             inputReader.Look += OnLook;
             
             inputReader.Jump += OnJump;
@@ -267,11 +282,17 @@ namespace RpgPractice
         private void OnDisable()
         {
             //test
+            inputReader.Dash -= OnDash;
             inputReader.Look -= OnLook;
             
             inputReader.Jump -= OnJump;
             inputReader.Attack -= OnAttack;
             inputReader.SubAttack -= OnSubAttack;
+        }
+
+        void OnDash(bool performed)
+        {
+            moveSpeed = performed ? runSpeed : walkSpeed;
         }
         
         void OnLook(Vector2 cameraMovement, bool isDeviceMouse)
@@ -347,11 +368,7 @@ namespace RpgPractice
             }
         }
 
-        void AttackEvent(int prefabNum, float length, float speed, float damage)
-        {
-            var proj = GameManager.instance.poolManager.Get(prefabNum);
-            proj.GetComponentInChildren<Projectile>().Init(transform.position, transform.forward,length, speed, damage);
-        }
+        
 
         public void Hit()
         {
@@ -360,21 +377,18 @@ namespace RpgPractice
             
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
             
-            float damage = attackDamage;
+
             if (stateInfo.IsName("Attack1"))
             {
-                damage = attackDamage;
-                AttackEvent(1, 5, 30, damage);
+                skillSystem.UseSkill(SkillType.Attack1, transform.position, transform.forward, attackPower);
             }
             else if (stateInfo.IsName("Attack2"))
             {
-                damage = attackDamage*1.2f;
-                AttackEvent(2, 7, 10, damage);
+                skillSystem.UseSkill(SkillType.Attack2, transform.position, transform.forward, attackPower);
             }
             else if (stateInfo.IsName("SubAttack"))
             {
-                damage = attackDamage*1.5f;
-                AttackEvent(3, 7, 10, damage);
+                skillSystem.UseSkill(SkillType.SubAttack, transform.position, transform.forward, attackPower);
             }
 
             // switch (attackNum)
@@ -486,35 +500,42 @@ namespace RpgPractice
             //Quaternion과 Vector3을 곱하면 벡터를 회전시킨결과값이 나옴
             //var cameraQuat = Quaternion.AngleAxis(mainCam.eulerAngles.y, Vector3.up);
             
-            //메인카메라의 회전값
-            var cameraQuat = Quaternion.AngleAxis(mainCam.eulerAngles.y, Vector3.up);
-            adjustedDirection = cameraQuat * movement;
             
-            if (adjustedDirection.magnitude > ZeroF)
+            //메인카메라의 회전값
+            float cameraY = mainCam.eulerAngles.y;
+            var cameraQuat = Quaternion.AngleAxis(cameraY, Vector3.up);
+            
+            // 입력된 이동방향을 카메라회전에 맞춰 보정
+            adjustedDirection = cameraQuat * movement;
+
+            float adjMagnitude = adjustedDirection.magnitude;
+            bool hasMovement = adjMagnitude > ZeroF;
+            
+            if (hasMovement)
             {
                 HandleHorizontalMovement(adjustedDirection);
+                
+                //자유카메라일때 이동방향으로 캐릭터 회전
+                if (!fixedCameraMode)
+                {
+                    // 캐릭터 회전
+                    //transform.rotation = Quaternion.LookRotation(adjustedDirection);
+                    Quaternion targetRotation = Quaternion.LookRotation(adjustedDirection);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+                }
+                
+                // 애니메이션용 속도 처리
                 currentSpeed = SmoothSpeed(currentSpeed, adjustedDirection.magnitude);
             }
             else
             {
+                // 이동입력없으면 정지, Y축은 중력/점프때문에 유지
                 rb.linearVelocity = new Vector3(ZeroF, rb.linearVelocity.y, ZeroF);
+                // 애니메이션용 속도 처리
                 currentSpeed = SmoothSpeed(currentSpeed, ZeroF);
             }
             
-            //자유카메라일때 카메라 보는방향 기준으로 캐릭터 회전
-            if (!fixedCameraMode)
-            {
-                //transform.rotation = Quaternion.LookRotation(adjustedDirection);
-                
-                if (adjustedDirection.magnitude > ZeroF)
-                {
-        
-                    // 캐릭터 회전
-                    transform.rotation = Quaternion.LookRotation(adjustedDirection);
-                }
-                
-                
-            }
+            
             
         }
         private void HandleHorizontalMovement(Vector3 adjustedDirection)

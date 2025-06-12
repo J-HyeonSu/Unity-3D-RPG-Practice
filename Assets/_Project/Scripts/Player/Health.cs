@@ -28,7 +28,7 @@ namespace RpgPractice
 
         public void TakeDamage(float damage)
         {
-            GameManager.instance.CreatePopUp(transform.position, damage.ToString(), Color.cyan, 1f);
+            UIManager.instance.CreatePopUp(transform.position, damage.ToString(), Color.cyan, 1f);
             currentHealth -= damage;
             PublishHealthPercentage();
         }

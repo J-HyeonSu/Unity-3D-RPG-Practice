@@ -5,22 +5,26 @@ namespace RpgPractice
 {
     public class Projectile : MonoBehaviour
     {
-        private float speed = 30;
-        private float damage = 5;
+        private ProjectileData data;
+        
+        private float speed;
+        private float damage;
         private float length;
-        private float len;
+        private float lifeTime;
+        
+        private float currentLength;
+        private float currentTime;
 
-        private void OnEnable()
-        {
-            
-        }
-
-        public void Init(Vector3 position, Vector3 direction, float length, float speed, float damage)
+        public void Init(Vector3 position, Vector3 direction, float length, float speed, float damage, float lifeTime)
         {
             this.length = length;
             this.damage = damage;
             this.speed = speed;
-            len = 0;
+            this.lifeTime = lifeTime;
+            
+            currentLength = 0;
+            currentTime = 0;
+            
             transform.parent.position = position;
             transform.position = new Vector3(position.x, position.y+1, position.z);
 
@@ -31,18 +35,18 @@ namespace RpgPractice
 
         }
 
-
         private void Update()
         {
-            var l = transform.forward * speed * Time.deltaTime;
-            transform.position += l;
-            len += l.magnitude;
+            var movement  = transform.forward * (speed * Time.deltaTime);
+            transform.position += movement;
+            currentLength += movement.magnitude;
+            currentTime += Time.deltaTime;
 
-            if (len > length) 
+            // 거리 제한 또는 시간 제한
+            if (currentLength > length || currentTime > lifeTime)
             {
-                transform.parent.gameObject.SetActive(false);  
+                DeactivateProjectile();
             }
-            
 
         }
 
@@ -50,10 +54,22 @@ namespace RpgPractice
         {
             if (other.CompareTag("Enemy"))
             {
-                other.gameObject.GetComponent<Health>().TakeDamage(damage);
+                var health = other.GetComponent<Health>();
+                if (health != null)
+                {
+                    health.TakeDamage(damage);
+                }
             }
         }
-
+        
+        private void DeactivateProjectile()
+        {
+            if (transform.parent != null)
+                transform.parent.gameObject.SetActive(false);
+            else
+                gameObject.SetActive(false);
+        }
+        
         
     }
 }

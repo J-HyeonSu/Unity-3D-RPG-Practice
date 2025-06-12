@@ -203,6 +203,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6077230313872936708, guid: 233967c9c1a91384eba44f841540ffbe, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5007429445209167716}
+    - targetCorrespondingSourceObject: {fileID: 6077230313872936708, guid: 233967c9c1a91384eba44f841540ffbe, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8426049945304366927}
   m_SourcePrefab: {fileID: 100100000, guid: 233967c9c1a91384eba44f841540ffbe, type: 3}
 --- !u!1 &1968862511972411580 stripped
 GameObject:
@@ -228,16 +231,17 @@ MonoBehaviour:
   rb: {fileID: 3724037520613892095}
   groundChecker: {fileID: 5007429445209167716}
   weaponManager: {fileID: 209584693619330522}
+  skillSystem: {fileID: 8426049945304366927}
   moveSpeed: 300
   rotationSpeed: 1500
-  smoothTime: 0.2
+  smoothTime: 0.05
   jumpForce: 10
   jumpDuration: 0.5
   jumpCooldown: 0
   gravityMultiplier: 3
   attackCooldown: 2
   attackDistance: 3
-  attackDamage: 30
+  attackPower: 10
 --- !u!114 &5625796037521123543
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -283,6 +287,25 @@ MonoBehaviour:
   groundLayers:
     serializedVersion: 2
     m_Bits: 128
+--- !u!114 &8426049945304366927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1968862511972411580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47663a2059cf4aebb283cdfc2230ee43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponSkills:
+  - weaponType: 0
+    skills:
+    - {fileID: 11400000, guid: dd8a1e92122281843ac4e48700c9bb73, type: 2}
+    - {fileID: 11400000, guid: 5b1e48544c009ad4e8d2cf08e24b5e27, type: 2}
+    - {fileID: 11400000, guid: 24f9f7852a8b61847b34e47ff8b4dba3, type: 2}
+  weaponManager: {fileID: 209584693619330522}
 --- !u!95 &4165669047525119143 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 8559947808482800415, guid: 233967c9c1a91384eba44f841540ffbe, type: 3}

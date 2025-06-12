@@ -12,8 +12,10 @@ namespace RpgPractice
         public event UnityAction EnableMouseControlCamera = delegate { };
         public event UnityAction DisableMouseControlCamera = delegate { };
         public event UnityAction<bool> Jump = delegate { };
+        public event UnityAction<bool> Dash = delegate { };
         public event UnityAction Attack = delegate { };
         public event UnityAction SubAttack = delegate { };
+        
 
         private RpgInputAction inputAction;
 
@@ -81,6 +83,19 @@ namespace RpgPractice
             if (context.phase == InputActionPhase.Started)
             {
                 SubAttack.Invoke();                
+            }
+        }
+
+        public void OnDash(InputAction.CallbackContext context)
+        {
+            switch (context.phase)
+            {
+                case InputActionPhase.Started:
+                    Dash.Invoke(true);
+                    break;
+                case InputActionPhase.Canceled:
+                    Dash.Invoke(false);
+                    break;
             }
         }
 

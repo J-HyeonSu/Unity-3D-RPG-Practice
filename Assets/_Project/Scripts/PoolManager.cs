@@ -7,25 +7,39 @@ namespace RpgPractice
 
     public class PoolManager : MonoBehaviour
     {
-        public GameObject[] prefabs;
-        private List<GameObject>[] pools;
+        // public GameObject[] prefabs;
+        // private List<GameObject>[] pools;
+        public static PoolManager instance;
+        private Dictionary<GameObject, List<GameObject>> pools;
 
         private void Awake()
         {
-            //pools 리스트배열만들고 초기화
-            pools = new List<GameObject>[prefabs.Length];
-
-            for (int index = 0; index < pools.Length; index++)
-            {
-                pools[index] = new List<GameObject>();
-            }
+            instance = this;
+            pools = new Dictionary<GameObject, List<GameObject>>();
+            // //pools 리스트배열만들고 초기화
+            // pools = new List<GameObject>[prefabs.Length];
+            //
+            // for (int index = 0; index < pools.Length; index++)
+            // {
+            //     pools[index] = new List<GameObject>();
+            // }
         }
 
-        public GameObject Get(int prefabNum)
+        public GameObject Get(ProjectileData projectileData)
         {
+            return Get(projectileData.prefab);
+        }
+        public GameObject Get(GameObject prefab)
+        {
+            
+            if (!pools.ContainsKey(prefab))
+            {
+                pools[prefab] = new List<GameObject>();
+            }
+
             GameObject select = null;
 
-            foreach (var pool in pools[prefabNum])
+            foreach (var pool in pools[prefab])
             {
                 if (!pool.activeSelf)
                 {
@@ -37,8 +51,8 @@ namespace RpgPractice
 
             if (!select)
             {
-                select = Instantiate(prefabs[prefabNum], transform);
-                pools[prefabNum].Add(select);
+                select = Instantiate(prefab, transform);
+                pools[prefab].Add(select);
             }
 
             return select;
