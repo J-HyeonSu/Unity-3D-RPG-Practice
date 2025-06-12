@@ -173,35 +173,36 @@ namespace RpgPractice
             
             if (Input.GetMouseButtonDown(2))
             {
+                fixedCameraMode = !fixedCameraMode;
                 if (fixedCameraMode)
                 {
-                    // 현재 실제 월드 방향 계산
-                    Vector3 currentWorldRotation = transform.rotation.eulerAngles; // 부모 회전이 이미 반영된 값
-    
-                    // 부모 먼저 리셋
-                    transform.parent.rotation = Quaternion.identity;
-    
-                    // 캐릭터를 현재와 같은 방향으로 설정 (변화 없음)
-                    transform.rotation = Quaternion.Euler(0, currentWorldRotation.y, 0);
-    
-                    cinemachineTargetYaw = currentWorldRotation.y;
+                    //고정시점으로 변환일때
+                    
+                    //모델rotation을 부모오브젝트와 동기화 후 초기화
+                    transform.parent.rotation = transform.rotation;
+                    transform.localRotation = Quaternion.identity;
+                    
+                    followCameraRoot.transform.localRotation = Quaternion.Euler(cinemachineTargetPitch, 0, 0);
+                    
                 }
                 else
                 {
-                    // 자유 -> 고정
-                    // PlayerModel의 현재 회전을 Player(부모)로 옮기기
-                    float modelYRotation = transform.eulerAngles.y;
+                    // 자유시점으로 변환할때
     
-                    // Player(부모) 회전 설정
-                    transform.parent.eulerAngles = new Vector3(0, modelYRotation, 0);
+                    // 현재 followCameraRoot의 월드 회전값으로 동기화
+                    Vector3 currentCameraEuler = followCameraRoot.transform.eulerAngles;
+                    cinemachineTargetYaw = currentCameraEuler.y;
+                    cinemachineTargetPitch = currentCameraEuler.x;
     
-                    // PlayerModel 로컬 회전 초기화
-                    transform.localRotation = Quaternion.identity;
+                    // 360도 처리
+                    if (cinemachineTargetPitch > 180f)
+                        cinemachineTargetPitch -= 360f;
     
-                    // 카메라 각도도 동기화
-                    cinemachineTargetYaw = modelYRotation;
+                    // followCameraRoot를 월드 좌표 기준으로 설정
+                    followCameraRoot.transform.rotation = Quaternion.Euler(cinemachineTargetPitch, cinemachineTargetYaw, 0);
+                    
                 }
-                fixedCameraMode = !fixedCameraMode;
+                
                 
             }
 
