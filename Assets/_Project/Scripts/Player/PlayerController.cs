@@ -74,7 +74,7 @@ namespace RpgPractice
         private float cinemachineTargetYaw;
         private float cinemachineTargetPitch;
         
-        private bool isLookingAtCharacter;
+        private bool fixedCameraMode = true;
         
         
         //animator parameters
@@ -169,23 +169,39 @@ namespace RpgPractice
             stateMachine.Update();
             
             HandleTimers();
-            UpdateAnimator();
+            
             
             if (Input.GetMouseButtonDown(2))
             {
-                if (!isLookingAtCharacter)
+                if (fixedCameraMode)
                 {
-                    // 기본 -> 자유
-                    // 현재 카메라 타겟의 각도를 가져와서 동기화
-                    Vector3 currentEuler = followCameraRoot.transform.eulerAngles;
-                    cinemachineTargetYaw = currentEuler.y;
-                    cinemachineTargetPitch = currentEuler.x;
+                    // 현재 실제 월드 방향 계산
+                    Vector3 currentWorldRotation = transform.rotation.eulerAngles; // 부모 회전이 이미 반영된 값
     
-                    // 360도 처리
-                    if (cinemachineTargetPitch > 180f)
-                        cinemachineTargetPitch -= 360f;
+                    // 부모 먼저 리셋
+                    transform.parent.rotation = Quaternion.identity;
+    
+                    // 캐릭터를 현재와 같은 방향으로 설정 (변화 없음)
+                    transform.rotation = Quaternion.Euler(0, currentWorldRotation.y, 0);
+    
+                    cinemachineTargetYaw = currentWorldRotation.y;
                 }
-                isLookingAtCharacter = !isLookingAtCharacter;
+                else
+                {
+                    // 자유 -> 고정
+                    // PlayerModel의 현재 회전을 Player(부모)로 옮기기
+                    float modelYRotation = transform.eulerAngles.y;
+    
+                    // Player(부모) 회전 설정
+                    transform.parent.eulerAngles = new Vector3(0, modelYRotation, 0);
+    
+                    // PlayerModel 로컬 회전 초기화
+                    transform.localRotation = Quaternion.identity;
+    
+                    // 카메라 각도도 동기화
+                    cinemachineTargetYaw = modelYRotation;
+                }
+                fixedCameraMode = !fixedCameraMode;
                 
             }
 
@@ -212,6 +228,7 @@ namespace RpgPractice
         private void FixedUpdate()
         {
             stateMachine.FixedUpdate();
+            UpdateAnimator();
         }
 
         private void UpdateAnimator()
@@ -226,8 +243,8 @@ namespace RpgPractice
             currentVelocityX = SmoothSpeed(currentVelocityX, targetVelocityX);
             currentVelocityZ = SmoothSpeed(currentVelocityZ, targetVelocityZ);
 
-            currentVelocityX = inputReader.Direction.x * currentSpeed;
-            currentVelocityZ = inputReader.Direction.y * currentSpeed;
+            // currentVelocityX = inputReader.Direction.x * currentSpeed;
+            // currentVelocityZ = inputReader.Direction.y * currentSpeed;
             
             
             animator.SetFloat("Velocity X", currentVelocityX);
@@ -263,10 +280,22 @@ namespace RpgPractice
             {
                 float deviceMultiplier = isDeviceMouse ? Time.fixedDeltaTime : Time.deltaTime;
                 
-                if (isLookingAtCharacter)
+                if (fixedCameraMode)
                 {
-                    // 자유 시점 모드
-                    // 캐릭터 쳐다보기 모드 - 카메라만 회전
+                    // 고정 카메라
+                    // 캐릭터 Y축 회전 (마우스 X)
+                    transform.parent.Rotate(0, cameraMovement.x * deviceMultiplier, 0);
+
+                    // 카메라 상하 회전 (마우스 Y)
+                    cinemachineTargetPitch += -cameraMovement.y * deviceMultiplier;
+                    cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, -30, 70);
+        
+                    //followCameraRoot.transform.localRotation = Quaternion.Euler(cinemachineTargetPitch, 0, 0);
+                    followCameraRoot.transform.localRotation = Quaternion.Euler(cinemachineTargetPitch, 0, 0);
+                }
+                else
+                {
+                    // 자유 카메라 모드
                     cinemachineTargetYaw += cameraMovement.x * deviceMultiplier;
                     cinemachineTargetPitch += -cameraMovement.y * deviceMultiplier;
                 
@@ -274,19 +303,6 @@ namespace RpgPractice
                     cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, BottomClamp, TopClamp);
                 
                     followCameraRoot.transform.rotation = Quaternion.Euler(cinemachineTargetPitch, cinemachineTargetYaw, 0.0f);
-                    
-                }
-                else
-                {
-                    // 일반 시점
-                    // 캐릭터 Y축 회전 (마우스 X)
-                    transform.Rotate(0, cameraMovement.x * deviceMultiplier, 0);
-
-                    // 카메라 상하 회전 (마우스 Y)
-                    cinemachineTargetPitch += -cameraMovement.y * deviceMultiplier;
-                    cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, -30, 70);
-        
-                    followCameraRoot.transform.localRotation = Quaternion.Euler(cinemachineTargetPitch, 0, 0);
                 }
                 
             }
@@ -470,25 +486,34 @@ namespace RpgPractice
             //var cameraQuat = Quaternion.AngleAxis(mainCam.eulerAngles.y, Vector3.up);
             
             //메인카메라의 회전값
-            float currentCameraAngle = mainCam.eulerAngles.y;
-            
             var cameraQuat = Quaternion.AngleAxis(mainCam.eulerAngles.y, Vector3.up);
             adjustedDirection = cameraQuat * movement;
-            
             
             if (adjustedDirection.magnitude > ZeroF)
             {
                 HandleHorizontalMovement(adjustedDirection);
-                
                 currentSpeed = SmoothSpeed(currentSpeed, adjustedDirection.magnitude);
             }
             else
             {
-                currentSpeed = SmoothSpeed(currentSpeed, ZeroF);
                 rb.linearVelocity = new Vector3(ZeroF, rb.linearVelocity.y, ZeroF);
-                
+                currentSpeed = SmoothSpeed(currentSpeed, ZeroF);
             }
             
+            //자유카메라일때 카메라 보는방향 기준으로 캐릭터 회전
+            if (!fixedCameraMode)
+            {
+                //transform.rotation = Quaternion.LookRotation(adjustedDirection);
+                
+                if (adjustedDirection.magnitude > ZeroF)
+                {
+        
+                    // 캐릭터 회전
+                    transform.rotation = Quaternion.LookRotation(adjustedDirection);
+                }
+                
+                
+            }
             
         }
         private void HandleHorizontalMovement(Vector3 adjustedDirection)
