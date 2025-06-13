@@ -18,7 +18,7 @@ namespace RpgPractice
         [SerializeField] private WeaponSkillData[] weaponSkills;
         [SerializeField] private WeaponManager weaponManager;
 
-        public void UseSkill(SkillType skillType, Vector3 position, Vector3 direction, float attackPower)
+        public void UseSkill(SkillType skillType, Vector3 position, Vector3 direction, GameObject shooter, float attackPower)
         {
             WeaponSkillData currentWeaponData = GetCurrentWeaponSkillData();
             if (currentWeaponData == null) return;
@@ -29,7 +29,7 @@ namespace RpgPractice
                 var skillData = currentWeaponData.skills[skillIndex];
                 
                 var proj = PoolManager.instance.Get(skillData.prefab);
-                proj.GetComponentInChildren<Projectile>().Init(position, direction, skillData, attackPower);
+                proj.GetComponentInChildren<Projectile>().Init(shooter,position, direction, skillData, attackPower);
             }
         }
         

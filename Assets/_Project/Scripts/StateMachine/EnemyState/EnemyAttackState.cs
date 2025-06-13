@@ -16,14 +16,40 @@ namespace RpgPractice
 
         public override void OnEnter()
         {
+            agent.isStopped = true;
             animator.CrossFade(AttackHash, crossFadeDuration);
+            enemy.Attack();
             
+        }
+
+        public override void OnExit()
+        {
+            agent.isStopped = false;
         }
 
         public override void Update()
         {
-            agent.SetDestination(player.position);
-            enemy.Attack();
+            if (!enemy.attackTimer.IsRunning)
+            {
+                Debug.Log("At");
+                animator.Play(AttackHash, 0, 0f);
+                enemy.Attack();
+            }
+            
+            LookAtPlayer();
+        }
+        
+        private void LookAtPlayer()
+        {
+            Vector3 targetDirection = player.position - enemy.transform.position;
+            targetDirection.y = 0; // 수평으로만 바라보기
+           
+            if (targetDirection != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+                enemy.transform.rotation = Quaternion.Slerp(enemy.transform.rotation, targetRotation, 
+                    5f * Time.deltaTime);
+            }
         }
     }
 }

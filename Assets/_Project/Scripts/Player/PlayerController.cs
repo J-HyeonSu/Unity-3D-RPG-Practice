@@ -382,17 +382,17 @@ namespace RpgPractice
 
             if (stateInfo.IsName("Attack1"))
             {
-                skillSystem.UseSkill(SkillType.Attack1, transform.position, transform.forward, attackPower);
+                skillSystem.UseSkill(SkillType.Attack1, transform.position, transform.forward,transform.parent.gameObject ,attackPower);
                 attackNum = 1;
             }
             else if (stateInfo.IsName("Attack2"))
             {
-                skillSystem.UseSkill(SkillType.Attack2, transform.position, transform.forward, attackPower);
+                skillSystem.UseSkill(SkillType.Attack2, transform.position, transform.forward,transform.parent.gameObject, attackPower);
                 attackNum = 2;
             }
             else if (stateInfo.IsName("SubAttack"))
             {
-                skillSystem.UseSkill(SkillType.SubAttack, transform.position, transform.forward, attackPower);
+                skillSystem.UseSkill(SkillType.SubAttack, transform.position, transform.forward, transform.parent.gameObject,attackPower);
                 attackNum = 3;
             }
             

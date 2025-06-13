@@ -15,24 +15,30 @@ namespace RpgPractice
         [SerializeField] private float wanderRadius = 10;
         [SerializeField] private float timeBetweenAttacks = 1f;
         [SerializeField] private int attackDamage = 10;
+        [SerializeField] private bool isRanged;
         [SerializeField] private float deadTime = 10f;
+        [SerializeField] private ProjectileData projectileData;
 
         private StateMachine stateMachine;
-        private CountdownTimer attackTimer;
+        public CountdownTimer attackTimer;
 
         public bool isDetected;
+        private bool canMove;
 
         void Start()
         {
             stateMachine = new StateMachine();
             attackTimer = new CountdownTimer(timeBetweenAttacks);
 
+            attackTimer.OnTimerStart += () => { canMove = false; };
+            attackTimer.OnTimerStop += () => { canMove = true; };
+
             var locomotionState = new EnemyLocomotionState(this, animator, agent, wanderRadius, playerDetector.Player);
             var attackState = new EnemyAttackState(this, animator, agent, playerDetector.Player);
             var deadState = new EnemyDeadState(this, animator);
 
             At(locomotionState, attackState, new FuncPredicate(()=> playerDetector.CanAttackPlayer()));
-            At(attackState, locomotionState, new FuncPredicate(()=> !playerDetector.CanAttackPlayer()));
+            At(attackState, locomotionState, new FuncPredicate(()=> canMove));
             Any(deadState, new FuncPredicate(()=> GetComponent<Health>().IsDead));
             
             stateMachine.SetState(locomotionState);
@@ -48,12 +54,12 @@ namespace RpgPractice
             if (playerDetector.CanDetectPlayer() && !isDetected)
             {
                 isDetected = true;
-                agent.speed += 2;
+                agent.speed += 1;
             }
             else if(!playerDetector.CanDetectPlayer() && isDetected)
             {
                 isDetected = false;
-                agent.speed -= 2;
+                agent.speed -= 1;
             }
             
             animator.SetFloat("Speed", agent.velocity.magnitude);
@@ -71,8 +77,28 @@ namespace RpgPractice
             if (attackTimer.IsRunning) return;
 
             attackTimer.Start();
-            playerDetector.PlayerHealth.TakeDamage(attackDamage);
             
+            //공격 로직
+            if (isRanged)
+            {
+                if (!projectileData) return;
+                var proj = PoolManager.instance.Get(projectileData.prefab);
+                var direction = playerDetector.Player.position - transform.position;
+                proj.GetComponentInChildren<Projectile>().Init(this.gameObject, transform.position, direction, projectileData, attackDamage);
+                
+
+            }
+            else
+            {
+                playerDetector.PlayerHealth.TakeDamage(attackDamage);    
+            }
+            
+            
+        }
+
+        public void AttackEnd()
+        {
+            canMove = true;
         }
 
         public void AlertObservers()

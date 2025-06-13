@@ -7,15 +7,17 @@ namespace RpgPractice
     public class Projectile : MonoBehaviour
     {
         private ProjectileData data;
+        private GameObject shooter;
         
         private float damage;
         private float currentLength;
         private float currentTime;
         private int currentHit;
 
-        public void Init(Vector3 position, Vector3 direction, ProjectileData projectileData,float attackPower)
+        public void Init(GameObject shooter, Vector3 position, Vector3 direction, ProjectileData projectileData,float attackPower)
         {
             this.data = projectileData;
+            this.shooter = shooter;
             
             damage = attackPower * data.damageCoefficient;
             currentLength = 0;
@@ -49,25 +51,48 @@ namespace RpgPractice
 
         private void OnTriggerEnter(Collider other)
         {
-            
-            if (other.CompareTag("Enemy"))
-            {
-                AudioManager.instance.PlaySfx(AudioManager.Sfx.Hit);
-                var health = other.GetComponent<Health>();
-                if (health != null)
-                {
-                    health.TakeDamage(damage);
-                    currentHit++;
+            if (other.gameObject == shooter) return;
 
-                    //관통 로직
-                    if (!data.piercing || currentHit >= data.maxHits)
-                    {
-                        DeactivateProjectile();
-                    }
+            if (IsSameTeam(other)) return;
+            
+            
+            if (other.CompareTag("Enemy") || other.CompareTag("Player"))
+            {
+                
+                HandleDamage(other);
+            }
+        }
+
+        bool IsSameTeam(Collider other)
+        {
+            if (!shooter) return false;
+            bool result = false;
+            result =
+                shooter.CompareTag("Enemy") && other.CompareTag("Enemy") ||
+                shooter.CompareTag("Player") && other.CompareTag("Player");
+            
+            return result;
+        }
+
+        private void HandleDamage(Collider other)
+        {
+            //other은 player부모객체라 playermodel에 health가있어서 안되고 있음.
+            var health = other.GetComponent<Health>();
+            if (health != null)
+            {
+                if (health.IsDead) return;
+                AudioManager.instance.PlaySfx(AudioManager.Sfx.Hit);
+                health.TakeDamage(damage);
+                currentHit++;
+
+                //관통 로직
+                if (!data.piercing || currentHit >= data.maxHits)
+                {
+                    DeactivateProjectile();
                 }
             }
         }
-        
+
         private void DeactivateProjectile()
         {
             if (transform.parent != null)
