@@ -1,4 +1,5 @@
 ﻿using System;
+using RPGCharacterAnims.Actions;
 using UnityEngine;
 
 namespace RpgPractice
@@ -7,23 +8,19 @@ namespace RpgPractice
     {
         private ProjectileData data;
         
-        private float speed;
         private float damage;
-        private float length;
-        private float lifeTime;
-        
         private float currentLength;
         private float currentTime;
+        private int currentHit;
 
-        public void Init(Vector3 position, Vector3 direction, float length, float speed, float damage, float lifeTime)
+        public void Init(Vector3 position, Vector3 direction, ProjectileData projectileData,float attackPower)
         {
-            this.length = length;
-            this.damage = damage;
-            this.speed = speed;
-            this.lifeTime = lifeTime;
+            this.data = projectileData;
             
+            damage = attackPower * data.damageCoefficient;
             currentLength = 0;
             currentTime = 0;
+            currentHit = 0;
             
             transform.parent.position = position;
             transform.position = new Vector3(position.x, position.y+1, position.z);
@@ -37,13 +34,13 @@ namespace RpgPractice
 
         private void Update()
         {
-            var movement  = transform.forward * (speed * Time.deltaTime);
+            var movement  = transform.forward * (data.speed * Time.deltaTime);
             transform.position += movement;
             currentLength += movement.magnitude;
             currentTime += Time.deltaTime;
 
             // 거리 제한 또는 시간 제한
-            if (currentLength > length || currentTime > lifeTime)
+            if (currentLength > data.length || currentTime > data.lifeTime)
             {
                 DeactivateProjectile();
             }
@@ -52,12 +49,21 @@ namespace RpgPractice
 
         private void OnTriggerEnter(Collider other)
         {
+            
             if (other.CompareTag("Enemy"))
             {
+                AudioManager.instance.PlaySfx(AudioManager.Sfx.Hit);
                 var health = other.GetComponent<Health>();
                 if (health != null)
                 {
                     health.TakeDamage(damage);
+                    currentHit++;
+
+                    //관통 로직
+                    if (!data.piercing || currentHit >= data.maxHits)
+                    {
+                        DeactivateProjectile();
+                    }
                 }
             }
         }

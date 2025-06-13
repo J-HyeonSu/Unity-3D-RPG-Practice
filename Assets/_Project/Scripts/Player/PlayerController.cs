@@ -36,10 +36,6 @@ namespace RpgPractice
         [SerializeField] float attackCooldown = 0.5f;
         [SerializeField] float attackDistance = 3f;
         [SerializeField] float attackPower = 10f;
-
-        [Header("Cinemachine")]
-        private const float angleThreshold = 0.5f; // 0.5도 이상 변할 때만 적용
-        
         
         private StateMachine stateMachine;
         
@@ -51,8 +47,6 @@ namespace RpgPractice
         //movement
         private Vector3 movement;
         private float currentSpeed;
-        private float currentVelocityX;
-        private float currentVelocityZ;
         private float velocity;
         private float jumpVelocity;
         
@@ -72,6 +66,13 @@ namespace RpgPractice
         private CountdownTimer attackLeftTimer;
         
         //test
+        private float targetVelocityX;
+        private float targetVelocityZ;
+        private float currentVelocityX;
+        private float currentVelocityZ;
+        private float velocityX;
+        private float velocityZ;
+        
         private float smoothedCameraY;
         private float cameraYVelocity;
         private bool canAttack = true;
@@ -101,7 +102,6 @@ namespace RpgPractice
             rb.freezeRotation = true;
             
             SetupTimers();
-
             SetupStateMachine();
         }
 
@@ -250,18 +250,21 @@ namespace RpgPractice
             
             // locomotion 캐릭터 이동 관련
             // 목표 속도 계산
-            float targetVelocityX = inputReader.Direction.x * currentSpeed;
-            float targetVelocityZ = inputReader.Direction.y * currentSpeed;
+            targetVelocityX = inputReader.Direction.x * currentSpeed;
+            targetVelocityZ = inputReader.Direction.y * currentSpeed;
+
+            currentVelocityX = Mathf.SmoothDamp(currentVelocityX, targetVelocityX, ref velocityX, smoothTime);
+            currentVelocityX = Mathf.SmoothDamp(currentVelocityX, targetVelocityX, ref velocityZ, smoothTime);
 
             currentVelocityX = SmoothSpeed(currentVelocityX, targetVelocityX);
             currentVelocityZ = SmoothSpeed(currentVelocityZ, targetVelocityZ);
 
-            // currentVelocityX = inputReader.Direction.x * currentSpeed;
-            // currentVelocityZ = inputReader.Direction.y * currentSpeed;
+            currentVelocityX = inputReader.Direction.x * currentSpeed;
+            currentVelocityZ = inputReader.Direction.y * currentSpeed;
             
             
-            animator.SetFloat("Velocity X", currentVelocityX);
-            animator.SetFloat("Velocity Z", currentVelocityZ);
+            // animator.SetFloat("Velocity X", currentVelocityX);
+            // animator.SetFloat("Velocity Z", currentVelocityZ);
             animator.SetInteger("AttackNum", attackNum);
         }
         
@@ -294,17 +297,17 @@ namespace RpgPractice
         {
             moveSpeed = performed ? runSpeed : walkSpeed;
         }
-        
+                
         void OnLook(Vector2 cameraMovement, bool isDeviceMouse)
         {
-    
+            // inputreader collback 함수
             if (cameraMovement.magnitude >= 0.01f)
             {
                 float deviceMultiplier = isDeviceMouse ? Time.fixedDeltaTime : Time.deltaTime;
                 
                 if (fixedCameraMode)
                 {
-                    // 고정 카메라
+                    // 고정 카메라 모드
                     // 캐릭터 Y축 회전 (마우스 X)
                     transform.parent.Rotate(0, cameraMovement.x * deviceMultiplier, 0);
 
@@ -392,59 +395,11 @@ namespace RpgPractice
                 skillSystem.UseSkill(SkillType.SubAttack, transform.position, transform.forward, attackPower);
                 attackNum = 3;
             }
-
-            // switch (attackNum)
-            // {
-            //     case 1:
-            //         AttackEvent(attackNum, 5, 30, damage);
-            //         break;
-            //     case 2:
-            //         damage = attackDamage * 1.2f;
-            //         AttackEvent(attackNum, 7, 10, damage);
-            //         break;
-            //     case 3:
-            //         damage = attackDamage * 1.5f;
-            //         AttackEvent(attackNum, 7, 10, damage);
-            //         break;
-            //         
-            // }
-
-            // Vector3 attackPos = transform.position + transform.forward;
-            // Collider[] hitEnemies = Physics.OverlapSphere(attackPos, attackDistance);
-
-            //
-            //
-            // foreach (var hitEnemy in hitEnemies)
-            // {
-            //     if (hitEnemy.CompareTag("Enemy"))
-            //     {
-            //         if (stateInfo.IsName("Attack1"))
-            //         {
-            //             damage = attackDamage;
-            //         }
-            //         else if (stateInfo.IsName("Attack2"))
-            //         {
-            //             damage = attackDamage*1.2f;
-            //         }
-            //         else if (stateInfo.IsName("SubAttack"))
-            //         {
-            //             damage = attackDamage*1.5f;
-            //         }
-            //         // 적 데미지 
-            //         hitEnemy.GetComponent<Health>().TakeDamage(damage);
-            //         
-            //         
-            //     }
-            // }
+            
         }
 
         public void AttackEnd()
         {
-            //AttackEnd가 애니메이션도중 실행이 안될때가있음
-            //공격1이 끝난후 AttackEnd가 없어서 타이머대기시간이 있음.
-            //공격1에 조건을 걸면 Attack2가 실행안됨
-
-            //이제 2번째공격때 attack2 지연시간이 있음
             
             if (!isCombo || attackNum == 2)
             {
@@ -535,14 +490,14 @@ namespace RpgPractice
                 }
                 
                 // 애니메이션용 속도 처리
-                currentSpeed = SmoothSpeed(currentSpeed, adjustedDirection.magnitude);
+                currentSpeed = Mathf.SmoothDamp(currentSpeed, adjMagnitude, ref velocity, smoothTime);
             }
             else
             {
                 // 이동입력없으면 정지, Y축은 중력/점프때문에 유지
                 rb.linearVelocity = new Vector3(ZeroF, rb.linearVelocity.y, ZeroF);
                 // 애니메이션용 속도 처리
-                currentSpeed = SmoothSpeed(currentSpeed, ZeroF);
+                currentSpeed = Mathf.SmoothDamp(currentSpeed, ZeroF, ref velocity, smoothTime);
             }
             
             
