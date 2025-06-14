@@ -84,7 +84,7 @@ namespace RpgPractice
                 if (!projectileData) return;
                 var proj = PoolManager.instance.Get(projectileData.prefab);
                 var direction = playerDetector.Player.position - transform.position;
-                proj.GetComponentInChildren<Projectile>().Init(this.gameObject, transform.position, direction, projectileData, attackDamage);
+                proj.GetComponentInChildren<Projectile>().Init(gameObject, transform.position, direction, projectileData, attackDamage);
                 
 
             }

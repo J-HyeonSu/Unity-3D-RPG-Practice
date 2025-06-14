@@ -182,7 +182,9 @@ MonoBehaviour:
   wanderRadius: 10
   timeBetweenAttacks: 3
   attackDamage: 10
+  isRanged: 1
   deadTime: 10
+  projectileData: {fileID: 11400000, guid: 8ecdd2df1f3323e49b91c08b24071b8f, type: 2}
   isDetected: 0
 --- !u!95 &5552350291736688078
 Animator:

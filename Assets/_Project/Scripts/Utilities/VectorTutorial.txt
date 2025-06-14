@@ -1,0 +1,177 @@
+﻿// ============================================
+// 🎯 Vector3 필수 계산들
+// ============================================
+
+// 1. 방향 구하기 (가장 많이 사용!)
+Vector3 direction = target.position - player.position;
+
+// 2. 거리 구하기
+float distance = Vector3.Distance(pointA, pointB);
+// 또는
+float distance = (pointB - pointA).magnitude;
+
+// 3. 방향만 남기기 (정규화)
+Vector3 normalizedDirection = direction.normalized;
+
+// 4. 이동 적용
+Vector3 newPosition = currentPosition + direction * speed * Time.deltaTime;
+
+// 5. 중점 구하기
+Vector3 midPoint = (pointA + pointB) / 2f;
+
+// 6. 벡터의 크기(길이) 구하기
+float magnitude = myVector.magnitude;
+
+// 7. 두 벡터 사이의 각도
+float angle = Vector3.Angle(vectorA, vectorB);  // 0~180도
+
+// 8. 내적 (Dot Product) - 방향 유사도 확인
+float dot = Vector3.Dot(vectorA, vectorB);
+// dot > 0: 같은 방향
+// dot = 0: 수직
+// dot < 0: 반대 방향
+
+// 9. 외적 (Cross Product) - 수직인 벡터 구하기
+Vector3 perpendicular = Vector3.Cross(vectorA, vectorB);
+
+// 10. 벡터 투영 (한 벡터를 다른 벡터에 투영)
+Vector3 projection = Vector3.Project(vectorA, vectorB);
+
+// 11. 선형 보간 (Lerp)
+Vector3 interpolated = Vector3.Lerp(startPos, endPos, t);  // t: 0~1
+
+// 12. 구면 선형 보간 (Slerp) - 곡선 경로
+Vector3 sphericalInterp = Vector3.Slerp(startPos, endPos, t);
+
+// 13. 벡터 반사 (예: 공이 벽에 튕기기)
+Vector3 reflected = Vector3.Reflect(incomingVector, surfaceNormal);
+
+// 14. 가장 가까운/먼 점 찾기
+Vector3 closest = Vector3.Min(vectorA, vectorB);  // 각 축에서 작은 값
+Vector3 farthest = Vector3.Max(vectorA, vectorB);  // 각 축에서 큰 값
+
+// 15. 벡터 클램프 (범위 제한)
+Vector3 clamped = Vector3.ClampMagnitude(vector, maxLength);
+
+// ============================================
+// 🔄 Rotation 필수 계산들  
+// ============================================
+
+// 1. 오일러 각도로 회전 생성
+Quaternion rotation = Quaternion.Euler(x, y, z);
+
+// 2. 한 점에서 다른 점을 바라보는 회전
+Quaternion lookRotation = Quaternion.LookRotation(direction);
+
+// 3. 두 방향 사이의 회전
+Quaternion fromToRotation = Quaternion.FromToRotation(fromVector, toVector);
+
+// 4. 회전 보간 (Lerp)
+Quaternion interpolated = Quaternion.Lerp(startRot, endRot, t);
+
+// 5. 구면 선형 보간 (Slerp) - 더 부드러운 회전
+Quaternion sphericalRot = Quaternion.Slerp(startRot, endRot, t);
+
+// 6. 각도 차이 구하기
+float angleDifference = Quaternion.Angle(rotationA, rotationB);
+
+// 7. 회전 적용 (벡터에 회전 적용)
+Vector3 rotatedVector = rotation * vector;
+
+// 8. 회전 합성
+Quaternion combined = rotationA * rotationB;
+
+// 9. 역회전 (반대 회전)
+Quaternion inverse = Quaternion.Inverse(rotation);
+
+// 10. 축 중심 회전
+Quaternion axisRotation = Quaternion.AngleAxis(angle, axis);
+
+// 11. 부드러운 각도 보간 (SmoothDampAngle)
+float smoothAngle = Mathf.SmoothDampAngle(currentAngle, targetAngle, ref velocity, smoothTime);
+
+// 12. 각도 정규화 (-180 ~ 180 범위로)
+float normalizedAngle = Mathf.DeltaAngle(currentAngle, targetAngle);
+
+// ============================================
+// 🎮 실제 게임에서 자주 쓰는 패턴들
+// ============================================
+
+// 패턴 1: 적이 플레이어를 추적
+Vector3 direction = player.position - enemy.position;
+enemy.transform.position += direction.normalized * speed * Time.deltaTime;
+
+// 패턴 2: 적이 플레이어를 바라보기
+Vector3 lookDirection = player.position - enemy.position;
+Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
+enemy.transform.rotation = Quaternion.Slerp(enemy.transform.rotation, targetRotation, rotSpeed * Time.deltaTime);
+
+// 패턴 3: 플레이어 주변 원형 이동
+float angle = Time.time * rotationSpeed;
+Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
+transform.position = player.position + offset;
+
+// 패턴 4: 카메라가 플레이어 따라가기
+Vector3 targetPos = player.position + cameraOffset;
+camera.transform.position = Vector3.Lerp(camera.transform.position, targetPos, followSpeed * Time.deltaTime);
+
+// 패턴 5: 플레이어 입력을 월드 좌표로 변환
+Vector3 worldMovement = transform.TransformDirection(inputVector);
+
+// 패턴 6: 앞방향으로 Ray 쏘기 (벽 감지 등)
+Ray ray = new Ray(transform.position, transform.forward);
+
+// 패턴 7: 두 점 사이의 비율 위치
+Vector3 pointBetween = Vector3.Lerp(pointA, pointB, 0.3f);  // A에서 B로 30% 지점
+
+// 패턴 8: 경계 내에서만 이동 (클램프)
+Vector3 clampedPosition = new Vector3(
+    Mathf.Clamp(transform.position.x, minX, maxX),
+    transform.position.y,
+    Mathf.Clamp(transform.position.z, minZ, maxZ)
+);
+
+// 패턴 9: 랜덤한 방향
+Vector3 randomDirection = new Vector3(
+    Random.Range(-1f, 1f),
+    0,
+    Random.Range(-1f, 1f)
+).normalized;
+
+// 패턴 10: 스프링 같은 부드러운 움직임
+Vector3 velocity = Vector3.zero;
+Vector3 smoothPosition = Vector3.SmoothDamp(
+    current, target, ref velocity, smoothTime
+);
+
+// ============================================
+// 💡 유용한 팁들
+// ============================================
+
+// 팁 1: 거리 비교할 때는 sqrMagnitude 사용 (성능 좋음)
+if ((target.position - transform.position).sqrMagnitude < detectionRange * detectionRange)
+{
+    // sqrt 계산 없이 거리 비교
+}
+
+// 팁 2: 각도를 -180~180 범위로 정규화
+float angle = transform.eulerAngles.y;
+if (angle > 180) angle -= 360;  // 270도 → -90도
+
+// 팁 3: 벡터가 거의 0인지 확인
+if (velocity.sqrMagnitude < 0.01f)
+{
+    // 거의 멈춤 상태
+}
+
+// 팁 4: 부드러운 회전을 위한 각속도 제한
+float maxRotationSpeed = 90f; // 초당 90도
+Quaternion targetRot = Quaternion.LookRotation(direction);
+transform.rotation = Quaternion.RotateTowards(
+    transform.rotation, 
+    targetRot, 
+    maxRotationSpeed * Time.deltaTime
+);
+
+// 팁 5: 회전 없이 이동만 (Y축 고정)
+Vector3 horizontalDirection = new Vector3(direction.x, 0, direction.z).normalized;

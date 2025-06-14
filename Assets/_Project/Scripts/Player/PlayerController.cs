@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Utilities;
 
 namespace RpgPractice
@@ -25,6 +26,7 @@ namespace RpgPractice
         [SerializeField] private float runSpeed = 400f;
         [SerializeField] private float rotationSpeed = 15f;
         [SerializeField] private float smoothTime = 0.05f;
+        [SerializeField] private float fixedRotateSpeed = 10f;
 
         [Header("Jump Setting")] 
         [SerializeField] float jumpForce = 10f;
@@ -49,6 +51,7 @@ namespace RpgPractice
         private float currentSpeed;
         private float velocity;
         private float jumpVelocity;
+        private bool sprint;
         
         private Vector3 adjustedDirection;
 
@@ -66,6 +69,13 @@ namespace RpgPractice
         private CountdownTimer attackLeftTimer;
         
         //test
+        float SpeedChangeRate = 10f;
+        private float _animationBlend;
+        private float _targetRotation;
+        private float _rotationVelocity;
+        [Range(0.0f, 0.3f)]
+        public float RotationSmoothTime = 0.12f;
+        
         private float targetVelocityX;
         private float targetVelocityZ;
         private float currentVelocityX;
@@ -73,7 +83,7 @@ namespace RpgPractice
         private float velocityX;
         private float velocityZ;
         
-        private float smoothedCameraY;
+        private float rotationCameraVelocity;
         private float cameraYVelocity;
         private bool canAttack = true;
         
@@ -100,6 +110,12 @@ namespace RpgPractice
                 followCameraRoot.transform.position - cineVCam.transform.position - Vector3.forward);
 
             rb.freezeRotation = true;
+            
+            // Inspector에서 설정하거나 코드로
+            rb.interpolation = RigidbodyInterpolation.Interpolate; // 가장 중요!
+            rb.linearDamping = 5f; // 저항력 추가 (0-10 사이에서 조절)
+            rb.angularDamping = 5f; // 회전 저항
+            
             
             SetupTimers();
             SetupStateMachine();
@@ -171,7 +187,7 @@ namespace RpgPractice
 
         void Update()
         {
-            movement = new Vector3(inputReader.Direction.x, 0f, inputReader.Direction.y);
+            
             
             stateMachine.Update();
             
@@ -242,25 +258,30 @@ namespace RpgPractice
         {
             stateMachine.FixedUpdate();
             UpdateAnimator();
+            movement = new Vector3(inputReader.Direction.x, 0f, inputReader.Direction.y);
         }
 
         private void UpdateAnimator()
         {
-            animator.SetFloat(Speed, currentSpeed);
-            
-            // locomotion 캐릭터 이동 관련
+            // Speed 애니메이션 (전체 속도)
+            animator.SetFloat(Speed, _animationBlend); // currentSpeed 대신 _animationBlend 사용
+    
+            // Velocity X, Z 계산 (카메라 기준으로 변환된 입력값)
+            float cameraY = mainCam.eulerAngles.y;
+            var cameraQuat = Quaternion.AngleAxis(cameraY, Vector3.up);
+            Vector3 cameraRelativeMovement = cameraQuat * movement;
+    
             // 목표 속도 계산
-            targetVelocityX = inputReader.Direction.x * currentSpeed;
-            targetVelocityZ = inputReader.Direction.y * currentSpeed;
-
+            targetVelocityX = cameraRelativeMovement.x;
+            targetVelocityZ = cameraRelativeMovement.z;
+    
+            // 부드러운 블렌딩
             currentVelocityX = Mathf.SmoothDamp(currentVelocityX, targetVelocityX, ref velocityX, smoothTime);
-            currentVelocityX = Mathf.SmoothDamp(currentVelocityX, targetVelocityX, ref velocityZ, smoothTime);
-
-            currentVelocityX = SmoothSpeed(currentVelocityX, targetVelocityX);
-            currentVelocityZ = SmoothSpeed(currentVelocityZ, targetVelocityZ);
-
-            currentVelocityX = inputReader.Direction.x * currentSpeed;
-            currentVelocityZ = inputReader.Direction.y * currentSpeed;
+            currentVelocityZ = Mathf.SmoothDamp(currentVelocityZ, targetVelocityZ, ref velocityZ, smoothTime);
+    
+            // 애니메이터에 전달
+            //animator.SetFloat("Velocity X", currentVelocityX);
+            //animator.SetFloat("Velocity Z", currentVelocityZ);
             
             
             // animator.SetFloat("Velocity X", currentVelocityX);
@@ -295,12 +316,13 @@ namespace RpgPractice
 
         void OnDash(bool performed)
         {
-            moveSpeed = performed ? runSpeed : walkSpeed;
+            sprint = performed;
         }
                 
+        // inputreader collback 함수
         void OnLook(Vector2 cameraMovement, bool isDeviceMouse)
         {
-            // inputreader collback 함수
+            
             if (cameraMovement.magnitude >= 0.01f)
             {
                 float deviceMultiplier = isDeviceMouse ? Time.fixedDeltaTime : Time.deltaTime;
@@ -309,11 +331,26 @@ namespace RpgPractice
                 {
                     // 고정 카메라 모드
                     // 캐릭터 Y축 회전 (마우스 X)
-                    transform.parent.Rotate(0, cameraMovement.x * deviceMultiplier, 0);
+                    
+                    //카메라 회전하는만큼 캐릭터도 회전
+                    
+                    //카메라 회전값
+                    float rotateY = cameraMovement.x * deviceMultiplier * fixedRotateSpeed + transform.parent.eulerAngles.y;
+                    //현재값
+                    
+                    //_targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + mainCam.transform.eulerAngles.y;
+                    float rotation = Mathf.SmoothDampAngle(transform.parent.eulerAngles.y, rotateY, ref rotationCameraVelocity,
+                        RotationSmoothTime);
+            
+                    // 카메라 위치에 상대적인 입력 방향을 향하도록 회전
+                    transform.parent.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                    
+                    //렉걸리던값
+                    //transform.parent.Rotate(0, cameraMovement.x * deviceMultiplier, 0);
 
                     // 카메라 상하 회전 (마우스 Y)
                     cinemachineTargetPitch += -cameraMovement.y * deviceMultiplier;
-                    cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, -30, 70);
+                    cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, BottomClamp, TopClamp);
         
                     //followCameraRoot.transform.localRotation = Quaternion.Euler(cinemachineTargetPitch, 0, 0);
                     followCameraRoot.transform.localRotation = Quaternion.Euler(cinemachineTargetPitch, 0, 0);
@@ -459,13 +496,118 @@ namespace RpgPractice
 
         public void HandleMovement()
         {
+            
+            // 목표 속도 지정
+            float targetSpeed = sprint ? runSpeed : walkSpeed;
+            
+            // 입력값이 없을때 타겟속도 0으로 지정
+            if (inputReader.Direction == Vector3.zero) targetSpeed = 0.0f;
+            
+            // y값(위아래) 제외 현재 속도
+            float currentHorizontalSpeed = new Vector3(rb.linearVelocity.x, 0.0f, rb.linearVelocity.z).magnitude;
+            
+            // 기준값의 오차범위
+            float speedOffset = 0.1f;
+            
+            //입력값의 속도
+            float inputMagnitude = inputReader.Direction.magnitude;
+            
+            
+            // 오차범위내 목표 속도로 가속 또는 감속, 오차범위 안이면 타겟속도 유지
+            if (currentHorizontalSpeed < targetSpeed - speedOffset ||
+                currentHorizontalSpeed > targetSpeed + speedOffset)
+            {
+                // Mathf.Lerp(시작값, 목표값, 보간 비율(0~1사이의 값)) 두값을 부드럽게 보간
+                // 참고: Lerp의 T는 클램프되므로 속도를 클램프할 필요가 없음
+                moveSpeed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude,
+                    Time.deltaTime * SpeedChangeRate);
+            
+                // 속도를 소수점 3자리까지 반올림 , 부동소수점 이슈
+                moveSpeed = Mathf.Round(moveSpeed * 1000f) / 1000f;
+            }
+            else
+            {
+                moveSpeed = targetSpeed;
+            }
+            
+            // 애니메이션 전환을 부드럽게 하기 위한 블렌드 값 계산
+            _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * SpeedChangeRate);
+            // 매우 작은 값은 0으로 처리하여 애니메이션 떨림 방지
+            if (_animationBlend < 0.01f) _animationBlend = 0f;
+            
+            // 입력 방향 정규화
+            Vector3 inputDirection = new Vector3(inputReader.Direction.x, 0.0f, inputReader.Direction.y).normalized;
+            
+            // 참고: Vector2의 != 연산자는 근사치를 사용하므로 부동소수점 오차에 취약하지 않고, magnitude보다 저렴함
+            // 이동 입력이 있을 때 플레이어가 움직이는 동안 플레이어 회전
+            if (!fixedCameraMode && inputReader.Direction != Vector3.zero)
+            {
+                //Atan2를 사용해 입력방향을 각도로 변환하고 카메라 회전을 더함
+                //카메라 기준 상대적인 방향으로 회전하기 위해 카메라의 Y축 회전값 추가
+                _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
+                                  mainCam.transform.eulerAngles.y;
+                
+                // SmoothDampAngle을 사용해 현재 회전에서 목표 회전으로 부드럽게 회전
+                // _rotationVelocity는 회전 속도를 추적하는 참조 변수
+                
+                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
+                    RotationSmoothTime);
+            
+                // 카메라 위치에 상대적인 입력 방향을 향하도록 회전
+                transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+            }
+
+            Vector3 targetDirection;
+            if (fixedCameraMode)
+            {
+                targetDirection = transform.parent.TransformDirection(inputDirection);
+            }
+            else
+            {
+                targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
+            }
+             
+            
+            
+            // 플레이어 이동
+            Vector3 horizontalMovement = targetDirection.normalized * moveSpeed;
+            Vector3 currentHorizontal = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+            Vector3 velocityChange = horizontalMovement - currentHorizontal;
+
+            rb.AddForce(velocityChange, ForceMode.VelocityChange);
+            
+            
+            
+            
+            
+            // _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
+            //                  new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+            
+            // 캐릭터를 사용하는 경우 애니메이터 업데이트
+            // if (animator)
+            // {
+            //     // _animator.SetFloat(_animIDSpeed, _animationBlend);
+            
+            //     // _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+            //     
+            //     animator.SetFloat("Velocity X", currentVelocityX);
+            //     animator.SetFloat("Velocity Z", currentVelocityZ);
+            // }
+            
+            
+            
+            
+            
+            
+            
+            
+            return;
+            
             //mainCam.eulerAngles.y - y축 회전값(좌우회전값)
             //Vector3.up 은 Y축(위쪽)
             //AngleAxis는 특정 축을 중심으로 특정 각도만큼 회전하는 회전값 -> Y축 중심으로 mainCam y축값만큼 회전
             //Quaternion과 Vector3을 곱하면 벡터를 회전시킨결과값이 나옴
             //var cameraQuat = Quaternion.AngleAxis(mainCam.eulerAngles.y, Vector3.up);
-            
-            
             //메인카메라의 회전값
             float cameraY = mainCam.eulerAngles.y;
             var cameraQuat = Quaternion.AngleAxis(cameraY, Vector3.up);
@@ -503,21 +645,18 @@ namespace RpgPractice
             
             
         }
-        private void HandleHorizontalMovement(Vector3 adjustedDirection)
+        private void HandleHorizontalMovement(Vector3 moveDirection)
         {
-            Vector3 adVelocity = adjustedDirection * (moveSpeed * Time.fixedDeltaTime);
+            Vector3 targetVelocity = moveDirection* moveSpeed;
+            Vector3 currentHorizontal = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+            Vector3 velocityChange = targetVelocity - currentHorizontal;
             
-            rb.linearVelocity = new Vector3(adVelocity.x, rb.linearVelocity.y, adVelocity.z);
+            rb.AddForce(velocityChange, ForceMode.VelocityChange);
             
-            // var adjustedMovement = adjustedDirection * (moveSpeed * Time.deltaTime);
-            // controller.Move(adjustedMovement);
-        }
-
-        private void HandleRotation(Quaternion targetRotation)
-        {
-            transform.rotation = targetRotation;
-            //부드러운 회전
-            //Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            // Vector3 adVelocity = moveDirection * (moveSpeed * Time.fixedDeltaTime);
+            // rb.linearVelocity = new Vector3(adVelocity.x, rb.linearVelocity.y, adVelocity.z);
+            
+            
         }
         
         private float SmoothSpeed(float speed, float value)
