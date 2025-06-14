@@ -11,14 +11,15 @@ namespace RpgPractice
 
         public override void OnEnter()
         {
-            if (player.weaponManager.CurrentWeapon == WeaponType.Unarmed)
-            {
-                animator.CrossFade(LocomotionHash, crossFadeDuration);
-            }
-            else if (player.weaponManager.CurrentWeapon == WeaponType.Sword)
-            {
-                animator.CrossFade(LocomotionSwordHash, crossFadeDuration);
-            }
+            animator.CrossFade(LocomotionHash, crossFadeDuration);
+            // if (player.weaponManager.CurrentWeapon == WeaponType.Unarmed)
+            // {
+            //     animator.CrossFade(LocomotionHash, crossFadeDuration);
+            // }
+            // else if (player.weaponManager.CurrentWeapon == WeaponType.Sword)
+            // {
+            //     animator.CrossFade(LocomotionSwordHash, crossFadeDuration);
+            // }
             
         }
 

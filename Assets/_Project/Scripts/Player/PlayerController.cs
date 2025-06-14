@@ -84,6 +84,10 @@ namespace RpgPractice
         private float targetRotation;
         private float rotationVelocity;
         
+        private float currentVelocityX;
+        private float currentVelocityZ;
+        private float velocityX, velocityZ; 
+        
         
         // Camera
         private float cinemachineTargetYaw;
@@ -127,6 +131,7 @@ namespace RpgPractice
             var jumpState = new JumpState(this, animator);
             var attackState = new AttackState(this, animator);
             var subAttackState = new SubAttackState(this, animator);
+            var deadState = new DeadState(this, animator);
 
             At(locomotionState, jumpState, new FuncPredicate(() => jumpTimer.IsRunning));
             //At(locomotionState, attackState, new FuncPredicate(() => attackTimer.IsRunning));
@@ -136,6 +141,7 @@ namespace RpgPractice
             Any(attackState,new FuncPredicate(() => attackLeftTimer.IsRunning));
             Any(subAttackState, new FuncPredicate(() => subAttacking));
             Any(locomotionState, new FuncPredicate(ReturnToLocomotionState));
+            Any(deadState, new FuncPredicate(() => transform.GetComponentInParent<Health>().IsDead));
 
             
             stateMachine.SetState(locomotionState);
@@ -185,7 +191,6 @@ namespace RpgPractice
 
         void Update()
         {
-            
             stateMachine.Update();
             
             HandleTimers();
@@ -253,20 +258,8 @@ namespace RpgPractice
         {
             // Speed 애니메이션 (전체 속도)
             animator.SetFloat(Speed, animationBlend); // currentSpeed 대신 _animationBlend 사용
-    
-            // Velocity X, Z 계산 (카메라 기준으로 변환된 입력값)
-            float cameraY = mainCam.eulerAngles.y;
-            var cameraQuat = Quaternion.AngleAxis(cameraY, Vector3.up);
-            Vector3 cameraRelativeMovement = cameraQuat * movement;
-            
-    
-            // 애니메이터에 전달
-            //animator.SetFloat("Velocity X", currentVelocityX);
-            //animator.SetFloat("Velocity Z", currentVelocityZ);
             
             
-            // animator.SetFloat("Velocity X", currentVelocityX);
-            // animator.SetFloat("Velocity Z", currentVelocityZ);
             animator.SetInteger("AttackNum", attackNum);
         }
 
@@ -336,6 +329,7 @@ namespace RpgPractice
         void OnDash(bool performed)
         {
             sprint = performed;
+            animator.SetBool("sprint", sprint);
         }
                 
         // inputreader collback 함수
@@ -374,6 +368,12 @@ namespace RpgPractice
             }
         }
 
+        public void Dead()
+        {
+            //사망 처리
+            
+        }
+
         
 
         public void Hit()
@@ -401,9 +401,10 @@ namespace RpgPractice
 
         public void AttackEnd()
         {
-            
+            Debug.Log("end");
             if (!isCombo || attackNum == 2)
             {
+                Debug.Log("end2");
                 mainAttacking = false;
                 subAttacking = false;
                 attackNum = 0;
@@ -493,11 +494,6 @@ namespace RpgPractice
                 moveSpeed = targetSpeed;
             }
             
-            // 애니메이션 전환을 부드럽게 하기 위한 블렌드 값 계산
-            animationBlend = Mathf.Lerp(animationBlend, targetSpeed, Time.deltaTime * speedChangeRate);
-            // 매우 작은 값은 0으로 처리하여 애니메이션 떨림 방지
-            if (animationBlend < 0.01f) animationBlend = 0f;
-            
             // 입력 방향 정규화
             Vector3 inputDirection = new Vector3(inputReader.Direction.x, 0.0f, inputReader.Direction.y).normalized;
             
@@ -531,11 +527,49 @@ namespace RpgPractice
             }
             
             // 플레이어 이동
+            // 목표 이동 벡터
             Vector3 horizontalMovement = targetDirection.normalized * moveSpeed;
+            // 현재 리지드바디의 수평(y축 제외) 속도
             Vector3 currentHorizontal = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+            // 목표속도와 현재속도의 차이 = 가해야 할 힘의 벡터
             Vector3 velocityChange = horizontalMovement - currentHorizontal;
+            
 
             rb.AddForce(velocityChange, ForceMode.VelocityChange);
+            
+            // 애니메이션 전환을 부드럽게 하기 위한 블렌드 값 계산
+            animationBlend = Mathf.Lerp(animationBlend, targetSpeed, Time.deltaTime * speedChangeRate);
+            // 매우 작은 값은 0으로 처리하여 애니메이션 떨림 방지
+            if (animationBlend < 0.01f) animationBlend = 0f;
+            
+            
+            if (fixedCameraMode)
+            {
+                // 고정모드일 경우 wasd + 캐릭터방향 방향보정 해야됨
+                // 아니다 캐릭터는 항상 정면을 보고있으니 w누르면 앞으로가는거고 s누르면 뒤로가는거임
+                // 근대 이러면 0되는순간 바로 애니메이션이 멈춤
+                currentVelocityX =
+                    Mathf.SmoothDamp(currentVelocityX, inputReader.Direction.x, ref velocityX, smoothTime);
+                currentVelocityZ =
+                    Mathf.SmoothDamp(currentVelocityZ, inputReader.Direction.y, ref velocityZ, smoothTime);
+                if (currentVelocityX * currentVelocityX < 0.0001f) currentVelocityX = 0;
+                if (currentVelocityZ * currentVelocityZ < 0.0001f) currentVelocityZ = 0;
+                animator.SetFloat("strafe", currentVelocityX);
+                animator.SetFloat("foward", currentVelocityZ);
+                
+                
+            }
+            else
+            {
+                // 자유모드일경우 캐릭터가 가는곳이 곧 정면임
+                // 뒷걸음 x 옆걸음 x -> 스피드값 그냥 포워드에 넣으면 됨
+                animator.SetFloat("foward", targetSpeed); 
+            }
+            
+            
+            //foward, straft
+            
+            
             
             
             // 캐릭터를 사용하는 경우 애니메이터 업데이트

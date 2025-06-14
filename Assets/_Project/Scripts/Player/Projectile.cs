@@ -18,6 +18,16 @@ namespace RpgPractice
         {
             this.data = projectileData;
             this.shooter = shooter;
+
+            if (!projectileData)
+            {
+                Debug.Log("projectileData 없음");
+            }
+
+            if (!projectileData.prefab)
+            {
+                Debug.Log("projectileData prefab 없음");
+            }
             
             damage = attackPower * data.damageCoefficient;
             currentLength = 0;

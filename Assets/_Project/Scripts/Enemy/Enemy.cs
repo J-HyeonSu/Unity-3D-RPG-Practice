@@ -72,9 +72,11 @@ namespace RpgPractice
             stateMachine.FixedUpdate();
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis
         public void Attack()
         {
             if (attackTimer.IsRunning) return;
+            if (gameObject.GetComponent<Health>().IsDead) return;
 
             attackTimer.Start();
             
@@ -84,7 +86,8 @@ namespace RpgPractice
                 if (!projectileData) return;
                 var proj = PoolManager.instance.Get(projectileData.prefab);
                 var direction = playerDetector.Player.position - transform.position;
-                proj.GetComponentInChildren<Projectile>().Init(gameObject, transform.position, direction, projectileData, attackDamage);
+                if(gameObject)
+                    proj.GetComponentInChildren<Projectile>().Init(gameObject, transform.position, direction, projectileData, attackDamage);
                 
 
             }
