@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Cinemachine;
@@ -22,12 +23,12 @@ namespace RpgPractice
         [SerializeField] private GroundChecker groundChecker;
         [SerializeField] public WeaponManager weaponManager;
         [SerializeField] private SkillSystem skillSystem;
-        
+        [SerializeField] private CameraManager cameraManager;
+
         
         [Header("Settings")]
         [SerializeField] private float walkSpeed = 150f;
         [SerializeField] private float runSpeed = 400f;
-        [SerializeField] private float rotationSpeed = 15f;
         [SerializeField] private float smoothTime = 0.05f;
         [SerializeField] private float speedChangeRate = 10f;
         [Range(0.0f, 0.3f)]
@@ -45,9 +46,7 @@ namespace RpgPractice
         [SerializeField] float attackDistance = 3f;
         [SerializeField] float attackPower = 10f;
         
-        [Header("Camera Settings")]
-        [SerializeField] private float TopClamp = 90f;
-        [SerializeField] private float BottomClamp = -40f;
+        
         
         private StateMachine stateMachine;
         private Transform mainCam;
@@ -87,15 +86,6 @@ namespace RpgPractice
         private float currentVelocityX;
         private float currentVelocityZ;
         private float velocityX, velocityZ; 
-        
-        
-        // Camera
-        private float cinemachineTargetYaw;
-        private float cinemachineTargetPitch;
-        private bool fixedCameraMode = true;
-        private Vector3 inputMovement;
-        private bool isDeviceMouse;
-        
         
         //animator parameters
         private static readonly int Speed = Animator.StringToHash("Speed");
@@ -194,50 +184,9 @@ namespace RpgPractice
             stateMachine.Update();
             
             HandleTimers();
-            
-            //test code inputreader 사용해야함
-            HandleCameraToggle();
 
         }
-
-        private void HandleCameraToggle()
-        {
-            if (Input.GetMouseButtonDown(2))
-            {
-                fixedCameraMode = !fixedCameraMode;
-
-                
-                if (fixedCameraMode)
-                {
-                    //고정시점으로 변환일때
-                    
-                    //모델rotation을 부모오브젝트와 동기화 후 초기화
-                    transform.parent.rotation = transform.rotation;
-                    transform.localRotation = Quaternion.identity;
-                    
-                    //followCameraRoot.transform.localRotation = Quaternion.Euler(cinemachineTargetPitch, 0, 0);
-                    
-                }
-                else
-                {
-                    // 자유시점으로 변환할때
-                    // 현재 followCameraRoot의 월드 회전값으로 동기화
-                    Vector3 currentCameraEuler = followCameraRoot.transform.eulerAngles;
-                    cinemachineTargetYaw = currentCameraEuler.y;
-                    cinemachineTargetPitch = currentCameraEuler.x;
-    
-                    // 360도 처리
-                    if (cinemachineTargetPitch > 180f)
-                        cinemachineTargetPitch -= 360f;
-    
-                    // followCameraRoot를 월드 좌표 기준으로 설정
-                    followCameraRoot.transform.rotation = Quaternion.Euler(cinemachineTargetPitch, cinemachineTargetYaw, 0);
-                    
-                }
-                
-                
-            }
-        }
+        
 
         void HandleTimers()
         {
@@ -257,58 +206,14 @@ namespace RpgPractice
         private void UpdateAnimator()
         {
             // Speed 애니메이션 (전체 속도)
-            animator.SetFloat(Speed, animationBlend); // currentSpeed 대신 _animationBlend 사용
-            
-            
-            animator.SetInteger("AttackNum", attackNum);
-        }
-
-        private void LateUpdate()
-        {
-            HandleCameraMovement();
+            //animator.SetInteger("AttackNum", attackNum);
         }
         
-        private void HandleCameraMovement()
-        {
-            if (inputMovement != Vector3.zero)
-            {
-                float deviceMultiplier = isDeviceMouse ? Time.fixedDeltaTime : Time.deltaTime;
-                
-                cinemachineTargetYaw += inputMovement.x * deviceMultiplier;
-                cinemachineTargetPitch += -inputMovement.y * deviceMultiplier;
-                
-                
-            }
-            cinemachineTargetYaw = ClampAngle(cinemachineTargetYaw, float.MinValue, float.MaxValue);
-            cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, BottomClamp, TopClamp);
-                
-            followCameraRoot.transform.rotation = Quaternion.Euler(cinemachineTargetPitch, cinemachineTargetYaw, 0.0f);
-
-            if (fixedCameraMode)
-            {
-                Vector3 cameraDirection = followCameraRoot.transform.forward;
-                cameraDirection.y = 0;
-                
-                var targetFRotation =  Quaternion.LookRotation(cameraDirection);
-                transform.parent.rotation = Quaternion.Slerp(transform.parent.rotation, targetFRotation, rotationSpeed * Time.deltaTime);
-                
-                
-            }
-        }
-        private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
-        {
-            if (lfAngle < -360f) lfAngle += 360f;
-            if (lfAngle > 360f) lfAngle -= 360f;
-            return Mathf.Clamp(lfAngle, lfMin, lfMax);
-        }
-
-
         private void OnEnable()
         {
             //test
-            inputReader.Dash += OnDash;
-            inputReader.Look += OnLook;
             
+            inputReader.Dash += OnDash;
             inputReader.Jump += OnJump;
             inputReader.Attack += OnAttack;
             inputReader.SubAttack += OnSubAttack;
@@ -318,9 +223,8 @@ namespace RpgPractice
         private void OnDisable()
         {
             //test
-            inputReader.Dash -= OnDash;
-            inputReader.Look -= OnLook;
             
+            inputReader.Dash -= OnDash;
             inputReader.Jump -= OnJump;
             inputReader.Attack -= OnAttack;
             inputReader.SubAttack -= OnSubAttack;
@@ -331,18 +235,15 @@ namespace RpgPractice
             sprint = performed;
             animator.SetBool("sprint", sprint);
         }
-                
-        // inputreader collback 함수
-        private void OnLook(Vector2 cameraMovement, bool isMouse)
-        {
-            inputMovement = cameraMovement;
-            isDeviceMouse = isMouse;
-        }
+        
         
         void OnSubAttack()
         {
+            
             if (!subAttacking)
             {
+                bool canSubAttack = transform.GetComponentInParent<Mana>().UseMana(20);
+                if (!canSubAttack) return;
                 attackLeftTimer.Stop();
                 subAttacking = true;
                 isCombo = false;
@@ -395,23 +296,20 @@ namespace RpgPractice
             {
                 skillSystem.UseSkill(SkillType.SubAttack, transform.position, transform.forward, transform.parent.gameObject,attackPower);
                 attackNum = 3;
+                
             }
             
         }
 
         public void AttackEnd()
         {
-            Debug.Log("end");
             if (!isCombo || attackNum == 2)
             {
-                Debug.Log("end2");
                 mainAttacking = false;
                 subAttacking = false;
                 attackNum = 0;
                 attackLeftTimer.Stop();
             }
-            
-
         }
         
         
@@ -420,7 +318,6 @@ namespace RpgPractice
             // 나중에 발소리 사운드 재생
             //Debug.Log("왼발 착지!");
         }
-
         public void FootR()
         {
             //Debug.Log("오른발 착지!");
@@ -482,7 +379,7 @@ namespace RpgPractice
                 currentHorizontalSpeed > targetSpeed + speedOffset)
             {
                 // Mathf.Lerp(시작값, 목표값, 보간 비율(0~1사이의 값)) 두값을 부드럽게 보간
-                // 참고: Lerp의 T는 클램프되므로 속도를 클램프할 필요가 없음
+                // Lerp의 T는 클램프되므로 속도를 클램프할 필요가 없음
                 moveSpeed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude,
                     Time.deltaTime * speedChangeRate);
             
@@ -499,7 +396,7 @@ namespace RpgPractice
             
             // 참고: Vector2의 != 연산자는 근사치를 사용하므로 부동소수점 오차에 취약하지 않고, magnitude보다 저렴함
             // 이동 입력이 있을 때 플레이어가 움직이는 동안 플레이어 회전
-            if (!fixedCameraMode && inputReader.Direction != Vector3.zero)
+            if (!cameraManager.fixedCameraMode && inputReader.Direction != Vector3.zero)
             {
                 //Atan2를 사용해 입력방향을 각도로 변환하고 카메라 회전을 더함
                 //카메라 기준 상대적인 방향으로 회전하기 위해 카메라의 Y축 회전값 추가
@@ -517,9 +414,17 @@ namespace RpgPractice
             }
 
             Vector3 targetDirection;
-            if (fixedCameraMode)
+            if (cameraManager.fixedCameraMode)
             {
-                targetDirection = transform.parent.TransformDirection(inputDirection);
+                //targetDirection = transform.parent.TransformDirection(inputDirection);
+                
+                // 카메라 방향을 직접 사용 (부모 회전 무시)
+                Vector3 cameraForward = followCameraRoot.transform.forward;
+                Vector3 cameraRight = followCameraRoot.transform.right;
+                cameraForward.y = 0;
+                cameraRight.y = 0;
+    
+                targetDirection = (cameraForward * inputDirection.z + cameraRight * inputDirection.x).normalized;
             }
             else
             {
@@ -543,7 +448,7 @@ namespace RpgPractice
             if (animationBlend < 0.01f) animationBlend = 0f;
             
             
-            if (fixedCameraMode)
+            if (cameraManager.fixedCameraMode)
             {
                 // 고정모드일 경우 wasd + 캐릭터방향 방향보정 해야됨
                 // 아니다 캐릭터는 항상 정면을 보고있으니 w누르면 앞으로가는거고 s누르면 뒤로가는거임

@@ -113,7 +113,7 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
                     ""name"": ""Fire"",
                     ""type"": ""Button"",
                     ""id"": ""8579937a-64b6-40c0-bf18-0264461ca739"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -149,6 +149,15 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
                     ""name"": ""Dash"",
                     ""type"": ""Button"",
                     ""id"": ""713259ac-2516-40f8-928b-feeb8dc70bb6"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""FixCameraMode"",
+                    ""type"": ""Button"",
+                    ""id"": ""1656ba25-4b6a-49e3-9145-9713ff989327"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -417,6 +426,39 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Dash"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""699317a5-10db-484b-877f-0bf38f614d21"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FixCameraMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e6242bd7-309e-47d6-9c94-8c2438a3e4fb"",
+                    ""path"": ""<Mouse>/middleButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FixCameraMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""14a3ce0c-2076-431a-ac99-078b22efbdb7"",
+                    ""path"": ""<Mouse>/middleButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FixCameraMode"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1011,6 +1053,7 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_SubAttack = m_Player.FindAction("SubAttack", throwIfNotFound: true);
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
+        m_Player_FixCameraMode = m_Player.FindAction("FixCameraMode", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1111,6 +1154,7 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_SubAttack;
     private readonly InputAction m_Player_Dash;
+    private readonly InputAction m_Player_FixCameraMode;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1150,6 +1194,10 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Dash".
         /// </summary>
         public InputAction @Dash => m_Wrapper.m_Player_Dash;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/FixCameraMode".
+        /// </summary>
+        public InputAction @FixCameraMode => m_Wrapper.m_Player_FixCameraMode;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1197,6 +1245,9 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
             @Dash.started += instance.OnDash;
             @Dash.performed += instance.OnDash;
             @Dash.canceled += instance.OnDash;
+            @FixCameraMode.started += instance.OnFixCameraMode;
+            @FixCameraMode.performed += instance.OnFixCameraMode;
+            @FixCameraMode.canceled += instance.OnFixCameraMode;
         }
 
         /// <summary>
@@ -1229,6 +1280,9 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
             @Dash.started -= instance.OnDash;
             @Dash.performed -= instance.OnDash;
             @Dash.canceled -= instance.OnDash;
+            @FixCameraMode.started -= instance.OnFixCameraMode;
+            @FixCameraMode.performed -= instance.OnFixCameraMode;
+            @FixCameraMode.canceled -= instance.OnFixCameraMode;
         }
 
         /// <summary>
@@ -1578,6 +1632,13 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDash(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "FixCameraMode" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFixCameraMode(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

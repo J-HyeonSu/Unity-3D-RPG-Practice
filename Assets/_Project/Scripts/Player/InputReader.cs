@@ -15,6 +15,7 @@ namespace RpgPractice
         public event UnityAction<bool> Dash = delegate { };
         public event UnityAction Attack = delegate { };
         public event UnityAction SubAttack = delegate { };
+        public event UnityAction<bool> FixedCamera = delegate { };
         
 
         private RpgInputAction inputAction;
@@ -95,6 +96,16 @@ namespace RpgPractice
                     break;
                 case InputActionPhase.Canceled:
                     Dash.Invoke(false);
+                    break;
+            }
+        }
+
+        public void OnFixCameraMode(InputAction.CallbackContext context)
+        {
+            switch (context.phase)
+            {
+                case InputActionPhase.Started:
+                    FixedCamera.Invoke(true);
                     break;
             }
         }

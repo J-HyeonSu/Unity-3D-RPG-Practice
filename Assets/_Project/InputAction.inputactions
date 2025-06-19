@@ -27,7 +27,7 @@
                     "name": "Fire",
                     "type": "Button",
                     "id": "8579937a-64b6-40c0-bf18-0264461ca739",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -63,6 +63,15 @@
                     "name": "Dash",
                     "type": "Button",
                     "id": "713259ac-2516-40f8-928b-feeb8dc70bb6",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "FixCameraMode",
+                    "type": "Button",
+                    "id": "1656ba25-4b6a-49e3-9145-9713ff989327",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -331,6 +340,39 @@
                     "processors": "",
                     "groups": "",
                     "action": "Dash",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "699317a5-10db-484b-877f-0bf38f614d21",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "FixCameraMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e6242bd7-309e-47d6-9c94-8c2438a3e4fb",
+                    "path": "<Mouse>/middleButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "FixCameraMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "14a3ce0c-2076-431a-ac99-078b22efbdb7",
+                    "path": "<Mouse>/middleButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "FixCameraMode",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

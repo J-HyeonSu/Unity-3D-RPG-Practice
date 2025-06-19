@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace RpgPractice
 {
-
     public class Health : MonoBehaviour
     {
 

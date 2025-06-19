@@ -16,6 +16,7 @@ namespace RpgPractice
         public override void FixedUpdate()
         {
             player.HandleMovement();
+            player.HandleJump();
         }
 
     }
