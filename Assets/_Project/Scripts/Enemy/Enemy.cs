@@ -88,7 +88,6 @@ namespace RpgPractice
                 var direction = playerDetector.Player.position - transform.position;
                 if(gameObject)
                     proj.GetComponentInChildren<Projectile>().Init(gameObject, transform.position, direction, projectileData, attackDamage);
-                
 
             }
             else

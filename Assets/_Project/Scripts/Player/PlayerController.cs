@@ -46,7 +46,9 @@ namespace RpgPractice
         [SerializeField] float attackDistance = 3f;
         [SerializeField] float attackPower = 10f;
         
-        
+        //test
+        [SerializeField] private BossAttackTelegraph telegraphTest;
+        [SerializeField] private BossAttackData attackData;
         
         private StateMachine stateMachine;
         private Transform mainCam;
@@ -184,6 +186,11 @@ namespace RpgPractice
             stateMachine.Update();
             
             HandleTimers();
+
+            if (Input.GetKey(KeyCode.E))
+            {
+                telegraphTest.ShowTelegraph(attackData, transform.position, transform.forward);
+            }
 
         }
         
