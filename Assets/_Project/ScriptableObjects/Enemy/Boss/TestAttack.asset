@@ -17,7 +17,7 @@ MonoBehaviour:
   damage: 10
   castTime: 2
   cooldown: 5
-  range: 1
+  range: 3
   angle: 60
   width: 5
   innerRadius: 3

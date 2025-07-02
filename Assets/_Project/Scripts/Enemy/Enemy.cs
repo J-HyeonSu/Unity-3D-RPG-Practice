@@ -7,25 +7,33 @@ namespace RpgPractice
 {
     [RequireComponent(typeof(NavMeshAgent))]
     [RequireComponent(typeof(PlayerDetector))]
-    public class Enemy : Entity
+    public abstract class Enemy : Entity
     {
-        [SerializeField] private NavMeshAgent agent;
-        [SerializeField] private PlayerDetector playerDetector;
-        [SerializeField] private Animator animator;
-        [SerializeField] private float wanderRadius = 10;
-        [SerializeField] private float timeBetweenAttacks = 1f;
-        [SerializeField] private int attackDamage = 10;
-        [SerializeField] private bool isRanged;
-        [SerializeField] private float deadTime = 10f;
-        [SerializeField] private ProjectileData projectileData;
+        
+        [Header("AI Components")]
+        [SerializeField] protected NavMeshAgent agent;
+        [SerializeField] protected PlayerDetector playerDetector;
+        
+        [Header("Enemy Settings")]        
+        [SerializeField] protected float wanderRadius = 10;
+        [SerializeField] protected float timeBetweenAttacks = 1f;
+        [SerializeField] protected int attackDamage = 10;
+        
+        [SerializeField] protected float destroyTime = 10f;
+        
 
-        private StateMachine stateMachine;
+        protected StateMachine stateMachine;
         public CountdownTimer attackTimer;
 
-        public bool isDetected;
-        private bool canMove;
+        
+        protected bool canMove;
 
-        void Start()
+        protected virtual void Start()
+        {
+            SetupStateMachine();
+        }
+
+        protected virtual void SetupStateMachine()
         {
             stateMachine = new StateMachine();
             attackTimer = new CountdownTimer(timeBetweenAttacks);
@@ -44,27 +52,26 @@ namespace RpgPractice
             stateMachine.SetState(locomotionState);
         }
 
-        void At(IState from, IState to, IPredicate condition) => stateMachine.AddTransition(from, to, condition);
-        void Any(IState to, IPredicate condition) => stateMachine.AddAnyTransition(to, condition);
+        protected void At(IState from, IState to, IPredicate condition) => stateMachine.AddTransition(from, to, condition);
+        protected void Any(IState to, IPredicate condition) => stateMachine.AddAnyTransition(to, condition);
 
         void Update()
         {
             stateMachine.Update();
-            
-            if (playerDetector.CanDetectPlayer() && !isDetected)
-            {
-                isDetected = true;
-                agent.speed += 1;
-            }
-            else if(!playerDetector.CanDetectPlayer() && isDetected)
-            {
-                isDetected = false;
-                agent.speed -= 1;
-            }
-            
-            animator.SetFloat("Speed", agent.velocity.magnitude);
-            
             attackTimer.Tick(Time.deltaTime);
+            
+            // if (playerDetector.CanDetectPlayer() && !isDetected)
+            // {
+            //     isDetected = true;
+            //     agent.speed += 1;
+            // }
+            // else if(!playerDetector.CanDetectPlayer() && isDetected)
+            // {
+            //     isDetected = false;
+            //     agent.speed -= 1;
+            // }
+            //
+            // animator.SetFloat("Speed", agent.velocity.magnitude);
         }
 
         private void FixedUpdate()
@@ -73,30 +80,7 @@ namespace RpgPractice
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
-        public void Attack()
-        {
-            if (attackTimer.IsRunning) return;
-            if (gameObject.GetComponent<Health>().IsDead) return;
-
-            attackTimer.Start();
-            
-            //공격 로직
-            if (isRanged)
-            {
-                if (!projectileData) return;
-                var proj = PoolManager.instance.Get(projectileData.prefab);
-                var direction = playerDetector.Player.position - transform.position;
-                if(gameObject)
-                    proj.GetComponentInChildren<Projectile>().Init(gameObject, transform.position, direction, projectileData, attackDamage);
-
-            }
-            else
-            {
-                playerDetector.PlayerHealth.TakeDamage(attackDamage);    
-            }
-            
-            
-        }
+        public abstract void Attack();
 
         public void AttackEnd()
         {
@@ -108,21 +92,24 @@ namespace RpgPractice
             //Debug.Log("다른 적들에게 알림!");
             // 나중에 주변 적들에게 플레이어 위치 알려주는 로직
         }
+        
 
         
-        public void Dead()
+        public override void Die()
         {
             agent.enabled = false;
-            StartCoroutine(DeadCoroutine());
-
-            //Destroy(gameObject);
+            StartCoroutine(DieCoroutine());
         }
-
-        IEnumerator DeadCoroutine()
+        IEnumerator DieCoroutine()
         {
-            yield return new WaitForSeconds(10f);
+            yield return new WaitForSeconds(destroyTime);
             Destroy(gameObject);
         }
-        
+
+
+        public override void TakeDamage(float damage)
+        {
+            health.TakeDamage(damage);
+        }
     }
 }

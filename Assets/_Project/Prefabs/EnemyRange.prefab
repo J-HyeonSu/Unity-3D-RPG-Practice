@@ -76,12 +76,12 @@ GameObject:
   - component: {fileID: 2330304745185965117}
   - component: {fileID: 3421760896635729217}
   - component: {fileID: 7580804155386788529}
-  - component: {fileID: 2476664593965545764}
   - component: {fileID: 5552350291736688078}
   - component: {fileID: 7062029133748291625}
   - component: {fileID: 278620023951114166}
+  - component: {fileID: 144658827742134939}
   m_Layer: 0
-  m_Name: Enemy2
+  m_Name: EnemyRange
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -163,29 +163,6 @@ MonoBehaviour:
   detectionRadius: 7
   innerDetectionRadius: 1
   detectionCooldown: 1
-  attackRange: 5
---- !u!114 &2476664593965545764
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5548171564825060635}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 679b7d6236d94bed9495fda593117c4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  agent: {fileID: 2330304745185965117}
-  playerDetector: {fileID: 7580804155386788529}
-  animator: {fileID: 5552350291736688078}
-  wanderRadius: 10
-  timeBetweenAttacks: 3
-  attackDamage: 10
-  isRanged: 1
-  deadTime: 10
-  projectileData: {fileID: 11400000, guid: 8ecdd2df1f3323e49b91c08b24071b8f, type: 2}
-  isDetected: 0
 --- !u!95 &5552350291736688078
 Animator:
   serializedVersion: 7
@@ -249,6 +226,28 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!114 &144658827742134939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5548171564825060635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bede43d9bd53466c81c6d78446bb3438, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: {fileID: 7062029133748291625}
+  animator: {fileID: 5552350291736688078}
+  agent: {fileID: 2330304745185965117}
+  playerDetector: {fileID: 7580804155386788529}
+  wanderRadius: 10
+  timeBetweenAttacks: 1
+  attackDamage: 3
+  destroyTime: 5
+  attackRange: 10
+  projectileData: {fileID: 11400000, guid: 8ecdd2df1f3323e49b91c08b24071b8f, type: 2}
 --- !u!1 &5980682245573881271
 GameObject:
   m_ObjectHideFlags: 0

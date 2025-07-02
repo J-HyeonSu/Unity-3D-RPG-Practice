@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -8,14 +9,47 @@ namespace RpgPractice
     public class BossAttackTelegraph : MonoBehaviour
     {
         [Header("시각적 피드백")] 
-        [SerializeField] private LineRenderer lineRenderer;
-        [SerializeField] private GameObject warningDecal;
         [SerializeField] private ParticleSystem chargeEffect;
         [SerializeField] private DecalProjector decalProjector;
         [SerializeField] private DecalProjector decalProjector2;
 
+
+        private Material decalMaterial;
+        private Material decalMaterial2;
+
         private BossAttackData currentAttackData;
         private Coroutine telegraphCoroutine;
+
+        private void Start()
+        {
+            if (decalProjector && decalProjector.material)
+            {
+                decalMaterial = new Material(decalProjector.material);
+                decalProjector.material = decalMaterial;
+                DebugMaterialProperties();
+            }
+            if (decalProjector2 && decalProjector2.material)
+            {
+                decalMaterial2 = new Material(decalProjector2.material);
+                decalProjector2.material = decalMaterial2;
+            }
+        }
+        
+        void DebugMaterialProperties()
+        {
+            if (decalMaterial == null) return;
+        
+            Shader shader = decalMaterial.shader;
+            int propertyCount = ShaderUtil.GetPropertyCount(shader);
+        
+            Debug.Log($"Material has {propertyCount} properties:");
+            for (int i = 0; i < propertyCount; i++)
+            {
+                string propertyName = ShaderUtil.GetPropertyName(shader, i);
+                ShaderUtil.ShaderPropertyType propertyType = ShaderUtil.GetPropertyType(shader, i);
+                Debug.Log($"Property {i}: {propertyName} ({propertyType})");
+            }
+        }
 
         public void ShowTelegraph(BossAttackData attackData, Vector3 center, Vector3 forward)
         {
@@ -91,16 +125,11 @@ namespace RpgPractice
 
         void ShowCircleIndicator(Vector3 center, float radius)
         {
-            if (warningDecal)
-            {
-                warningDecal.SetActive(true);
-                warningDecal.transform.position = center;
-                warningDecal.transform.localScale = Vector3.one * radius * 2f;
-            }
 
             if (decalProjector)
             {
                 decalProjector.enabled = true;
+                
             }
 
             if (decalProjector2)
@@ -112,36 +141,33 @@ namespace RpgPractice
 
         void ShowConeIndicator(Vector3 center, Vector3 forward, float range, float angle)
         {
-            if (lineRenderer)
+            if (decalProjector)
             {
-                lineRenderer.enabled = true;
-                
-                // 부채꼴 그리기
-                int segments = 20;
-                lineRenderer.positionCount = segments + 2;
-                
-                lineRenderer.SetPosition(0, center);
+                Debug.Log(decalMaterial);
+                decalMaterial.SetFloat("_Angle", angle);
+                decalMaterial.SetFloat("_StartAngle", 0);
+                decalProjector.enabled = true;
+            }
 
-                for (int i = 0; i <= segments; i++)
-                {
-                    float currentAngle = (-angle / 2f) + (angle / segments) * i;
-                    Vector3 direction = Quaternion.AngleAxis(currentAngle, Vector3.up) * Vector3.forward;
-                    Vector3 point = center + direction * range;
-                    lineRenderer.SetPosition(i+1, point);
-                }
+            if (decalProjector2)
+            {
+                decalMaterial2.SetFloat("_Angle", angle);
+                decalMaterial2.SetFloat("_StartAngle", 0);
+                decalProjector2.enabled = true;
+                decalProjector2.size = new Vector3(range * 2, range*2, decalProjector.size.z);
             }
         }
 
         void ShowLineIndicator(Vector3 center, Vector3 forward, float length, float width)
         {
-            if (warningDecal)
-            {
-                warningDecal.SetActive(true);
-                Vector3 decalPosition = center + forward * (length / 2f);
-                warningDecal.transform.position = decalPosition;
-                warningDecal.transform.rotation = Quaternion.LookRotation(forward);
-                warningDecal.transform.localScale = new Vector3(width, 1f, length);
-            }
+            // if (warningDecal)
+            // {
+            //     warningDecal.SetActive(true);
+            //     Vector3 decalPosition = center + forward * (length / 2f);
+            //     warningDecal.transform.position = decalPosition;
+            //     warningDecal.transform.rotation = Quaternion.LookRotation(forward);
+            //     warningDecal.transform.localScale = new Vector3(width, 1f, length);
+            // }
         }
 
         void ShowDonutIndicator(Vector3 center, float outerRadius, float innerRadius)
@@ -151,13 +177,13 @@ namespace RpgPractice
         
         void ShowRectangleIndicator(Vector3 center, Vector3 forward, float length, float width)
         {
-            if (warningDecal)
-            {
-                warningDecal.SetActive(true);
-                warningDecal.transform.position = center;
-                warningDecal.transform.rotation = Quaternion.LookRotation(forward);
-                warningDecal.transform.localScale = new Vector3(width, 1f, length);
-            }
+            // if (warningDecal)
+            // {
+            //     warningDecal.SetActive(true);
+            //     warningDecal.transform.position = center;
+            //     warningDecal.transform.rotation = Quaternion.LookRotation(forward);
+            //     warningDecal.transform.localScale = new Vector3(width, 1f, length);
+            // }
         }
         
         private Color GetRangeColor()
@@ -167,49 +193,33 @@ namespace RpgPractice
         
         private void SetRangeColor(Color color)
         {
-            if (lineRenderer)
-            {
-                lineRenderer.startColor = color;
-                lineRenderer.endColor = color;
-            }
-            
-            if (warningDecal)
-            {
-                var renderer = warningDecal.GetComponent<Renderer>();
-                if (renderer)
-                {
-                    renderer.material.color = color;
-                }
-            }
+            // if (lineRenderer)
+            // {
+            //     lineRenderer.startColor = color;
+            //     lineRenderer.endColor = color;
+            // }
+            //
+            // if (warningDecal)
+            // {
+            //     var renderer = warningDecal.GetComponent<Renderer>();
+            //     if (renderer)
+            //     {
+            //         renderer.material.color = color;
+            //     }
+            // }
         }
         
         private void SetRangeScale(float multiplier)
         {
-            if (warningDecal)
-            {
-                Vector3 originalScale = warningDecal.transform.localScale;
-                warningDecal.transform.localScale = originalScale * multiplier;
-            }
-
             if (decalProjector && decalProjector2)
             {
                 decalProjector.size = new Vector3(decalProjector2.size.x * multiplier, decalProjector2.size.y*multiplier,
                     decalProjector.size.z);
             }
-            
         }
         
         private void HideRangeIndicator()
         {
-            if (lineRenderer)
-            {
-                lineRenderer.enabled = false;
-            }
-            
-            if (warningDecal)
-            {
-                warningDecal.SetActive(false);
-            }
             
             if (chargeEffect)
             {

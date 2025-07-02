@@ -9,7 +9,8 @@ namespace RpgPractice
         [SerializeField] private float detectionRadius = 10f;
         [SerializeField] private float innerDetectionRadius = 5f;
         [SerializeField] private float detectionCooldown = 1f;
-        [SerializeField] private float attackRange = 2f;
+        private float attackRange = 2f;
+
         
         public Transform Player { get; private set; }
         public Health PlayerHealth { get; private set; }
@@ -68,6 +69,11 @@ namespace RpgPractice
             
             Gizmos.DrawLine(transform.position, transform.position+forwardConeDirection);
             Gizmos.DrawLine(transform.position, transform.position+backwardConeDirection);
+        }
+        
+        public void SetAttackRange(float attackRange)
+        {
+            this.attackRange = attackRange;
         }
     }
 }

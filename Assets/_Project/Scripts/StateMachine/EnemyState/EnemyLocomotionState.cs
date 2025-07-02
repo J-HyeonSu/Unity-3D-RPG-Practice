@@ -25,11 +25,12 @@ namespace RpgPractice
 
         public override void Update()
         {
-            if (enemy.isDetected)
-            {
-                agent.SetDestination(player.position);
-                return;
-            }
+            // if (enemy.isDetected)
+            // {
+            //     agent.SetDestination(player.position);
+            //     return;
+            // }
+            
             if (HasReachedDestination())
             {
                 var randomDirection = Random.insideUnitSphere * wanderRadius;

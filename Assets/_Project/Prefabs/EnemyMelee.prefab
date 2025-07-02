@@ -295,12 +295,12 @@ GameObject:
   - component: {fileID: 5702552526056566346}
   - component: {fileID: 2116377223919518725}
   - component: {fileID: 1281789719052669304}
-  - component: {fileID: 4241144702378748560}
   - component: {fileID: 4459025784137701510}
   - component: {fileID: 395499679243970249}
   - component: {fileID: 3126273454458977364}
+  - component: {fileID: 3440818972539015268}
   m_Layer: 0
-  m_Name: Enemy
+  m_Name: EnemyMelee
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -360,7 +360,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -382,29 +382,6 @@ MonoBehaviour:
   detectionRadius: 5
   innerDetectionRadius: 1
   detectionCooldown: 1
-  attackRange: 2
---- !u!114 &4241144702378748560
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8876175105051784628}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 679b7d6236d94bed9495fda593117c4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  agent: {fileID: 5702552526056566346}
-  playerDetector: {fileID: 1281789719052669304}
-  animator: {fileID: 4459025784137701510}
-  wanderRadius: 10
-  timeBetweenAttacks: 1
-  attackDamage: 10
-  isRanged: 0
-  deadTime: 10
-  projectileData: {fileID: 0}
-  isDetected: 0
 --- !u!95 &4459025784137701510
 Animator:
   serializedVersion: 7
@@ -468,3 +445,24 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!114 &3440818972539015268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8876175105051784628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4286ec4a99dd4cd0ac9723cc9a5407e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: {fileID: 395499679243970249}
+  animator: {fileID: 4459025784137701510}
+  agent: {fileID: 5702552526056566346}
+  playerDetector: {fileID: 1281789719052669304}
+  wanderRadius: 5
+  timeBetweenAttacks: 1
+  attackDamage: 5
+  destroyTime: 3
+  attackRange: 2

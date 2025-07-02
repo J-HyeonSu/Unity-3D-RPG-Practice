@@ -11,7 +11,7 @@ namespace RpgPractice
         public override void OnEnter()
         {
             animator.CrossFade(DeadHash, crossFadeDuration);
-            enemy.Dead();
+            enemy.Die();
         }
         
     }
