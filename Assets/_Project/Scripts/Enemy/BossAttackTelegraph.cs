@@ -11,45 +11,18 @@ namespace RpgPractice
         [Header("시각적 피드백")] 
         [SerializeField] private ParticleSystem chargeEffect;
         [SerializeField] private DecalProjector decalProjector;
-        [SerializeField] private DecalProjector decalProjector2;
+        [SerializeField] private DecalProjector backgroundDecalProjector;
 
-
-        private Material decalMaterial;
-        private Material decalMaterial2;
+        [SerializeField] private Material circleMaterial;
+        [SerializeField] private Material cone180Material;
+        [SerializeField] private Material cone90Material;
+        [SerializeField] private Material boxMaterial;
 
         private BossAttackData currentAttackData;
         private Coroutine telegraphCoroutine;
-
-        private void Start()
-        {
-            if (decalProjector && decalProjector.material)
-            {
-                decalMaterial = new Material(decalProjector.material);
-                decalProjector.material = decalMaterial;
-                DebugMaterialProperties();
-            }
-            if (decalProjector2 && decalProjector2.material)
-            {
-                decalMaterial2 = new Material(decalProjector2.material);
-                decalProjector2.material = decalMaterial2;
-            }
-        }
         
-        void DebugMaterialProperties()
-        {
-            if (decalMaterial == null) return;
         
-            Shader shader = decalMaterial.shader;
-            int propertyCount = ShaderUtil.GetPropertyCount(shader);
         
-            Debug.Log($"Material has {propertyCount} properties:");
-            for (int i = 0; i < propertyCount; i++)
-            {
-                string propertyName = ShaderUtil.GetPropertyName(shader, i);
-                ShaderUtil.ShaderPropertyType propertyType = ShaderUtil.GetPropertyType(shader, i);
-                Debug.Log($"Property {i}: {propertyName} ({propertyType})");
-            }
-        }
 
         public void ShowTelegraph(BossAttackData attackData, Vector3 center, Vector3 forward)
         {
@@ -99,6 +72,10 @@ namespace RpgPractice
 
         void ShowRangeIndicator(Vector3 center, Vector3 forward)
         {
+            
+            if (!decalProjector) return;
+            if (!backgroundDecalProjector) return;
+            
             switch (currentAttackData.rangeType)
             {
                 case AttackRangeType.Circle:
@@ -125,49 +102,58 @@ namespace RpgPractice
 
         void ShowCircleIndicator(Vector3 center, float radius)
         {
+            SetProjectorMaterial(circleMaterial);
 
-            if (decalProjector)
-            {
-                decalProjector.enabled = true;
-                
-            }
-
-            if (decalProjector2)
-            {
-                decalProjector2.enabled = true;
-                decalProjector2.size = new Vector3(radius * 2, radius*2, decalProjector.size.z);
-            }
+            SetProjectorPosition(center);
+            
+            
+            decalProjector.enabled = true;
+            
+            backgroundDecalProjector.enabled = true;
+            backgroundDecalProjector.size = new Vector3(radius * 2, radius*2, decalProjector.size.z);
+            
         }
 
         void ShowConeIndicator(Vector3 center, Vector3 forward, float range, float angle)
         {
-            if (decalProjector)
+            if (angle <= 90)
             {
-                Debug.Log(decalMaterial);
-                decalMaterial.SetFloat("_Angle", angle);
-                decalMaterial.SetFloat("_StartAngle", 0);
-                decalProjector.enabled = true;
+                SetProjectorMaterial(cone90Material);
+            }
+            else if (angle <= 180)
+            {
+                SetProjectorMaterial(cone180Material);
             }
 
-            if (decalProjector2)
-            {
-                decalMaterial2.SetFloat("_Angle", angle);
-                decalMaterial2.SetFloat("_StartAngle", 0);
-                decalProjector2.enabled = true;
-                decalProjector2.size = new Vector3(range * 2, range*2, decalProjector.size.z);
-            }
+            transform.rotation = Quaternion.LookRotation(forward);
+            
+            SetProjectorPosition(center);
+            
+            
+            decalProjector.enabled = true;
+            
+            backgroundDecalProjector.enabled = true;
+            backgroundDecalProjector.size = new Vector3(range * 2, range*2, decalProjector.size.z);
+            
         }
 
         void ShowLineIndicator(Vector3 center, Vector3 forward, float length, float width)
         {
-            // if (warningDecal)
-            // {
-            //     warningDecal.SetActive(true);
-            //     Vector3 decalPosition = center + forward * (length / 2f);
-            //     warningDecal.transform.position = decalPosition;
-            //     warningDecal.transform.rotation = Quaternion.LookRotation(forward);
-            //     warningDecal.transform.localScale = new Vector3(width, 1f, length);
-            // }
+            SetProjectorMaterial(boxMaterial);
+            
+            SetProjectorPosition(center);
+            decalProjector.pivot = new Vector3(0, 0.5f, decalProjector.pivot.z);
+            
+            transform.rotation = Quaternion.LookRotation(forward);
+
+            decalProjector.enabled = true;
+            backgroundDecalProjector.enabled = true;
+
+            
+            backgroundDecalProjector.pivot = new Vector3(0, length/2, backgroundDecalProjector.pivot.z);
+            
+            backgroundDecalProjector.size = new Vector3(width, length, decalProjector.size.z);
+            
         }
 
         void ShowDonutIndicator(Vector3 center, float outerRadius, float innerRadius)
@@ -177,13 +163,15 @@ namespace RpgPractice
         
         void ShowRectangleIndicator(Vector3 center, Vector3 forward, float length, float width)
         {
-            // if (warningDecal)
-            // {
-            //     warningDecal.SetActive(true);
-            //     warningDecal.transform.position = center;
-            //     warningDecal.transform.rotation = Quaternion.LookRotation(forward);
-            //     warningDecal.transform.localScale = new Vector3(width, 1f, length);
-            // }
+            SetProjectorMaterial(boxMaterial);
+            SetProjectorPosition(center);
+            
+            transform.rotation = Quaternion.LookRotation(forward);
+
+            decalProjector.enabled = true;
+            backgroundDecalProjector.enabled = true;
+
+            backgroundDecalProjector.size = new Vector3(width, length, decalProjector.size.z);
         }
         
         private Color GetRangeColor()
@@ -211,10 +199,22 @@ namespace RpgPractice
         
         private void SetRangeScale(float multiplier)
         {
-            if (decalProjector && decalProjector2)
+            if (decalProjector && backgroundDecalProjector)
             {
-                decalProjector.size = new Vector3(decalProjector2.size.x * multiplier, decalProjector2.size.y*multiplier,
-                    decalProjector.size.z);
+                if (currentAttackData.rangeType == AttackRangeType.Line)
+                {
+                    //라인 일경우
+                    //직선으로 뻗어나가는것만 표시
+                    decalProjector.pivot = new Vector3(0, backgroundDecalProjector.pivot.y*multiplier, decalProjector.pivot.z);
+                    
+                    decalProjector.size = new Vector3(backgroundDecalProjector.size.x, backgroundDecalProjector.size.y*multiplier, decalProjector.size.z);
+                }
+                else
+                {
+                    //나머지의경우 중심부터 퍼저나가는 효과
+                    decalProjector.size = new Vector3(backgroundDecalProjector.size.x * multiplier, backgroundDecalProjector.size.y*multiplier, decalProjector.size.z);
+                }
+                
             }
         }
         
@@ -229,11 +229,13 @@ namespace RpgPractice
             if (decalProjector)
             {
                 decalProjector.enabled = false;
+                decalProjector.pivot = new Vector3(0, 0, decalProjector.pivot.z);
             }
 
-            if (decalProjector2)
+            if (backgroundDecalProjector)
             {
-                decalProjector2.enabled = false;
+                backgroundDecalProjector.enabled = false;
+                backgroundDecalProjector.pivot = new Vector3(0, 0, backgroundDecalProjector.pivot.z);
             }
         }
         
@@ -247,6 +249,19 @@ namespace RpgPractice
             
             HideRangeIndicator();
         }
-        
+
+        void SetProjectorMaterial(Material material)
+        {
+            if (!decalProjector && !backgroundDecalProjector) return;
+            decalProjector.material = material;
+            backgroundDecalProjector.material = material;
+        }
+
+        void SetProjectorPosition(Vector3 position)
+        {
+            if (!decalProjector && !backgroundDecalProjector) return;
+            decalProjector.transform.position = position;
+            backgroundDecalProjector.transform.position = position;
+        }
     }
 }

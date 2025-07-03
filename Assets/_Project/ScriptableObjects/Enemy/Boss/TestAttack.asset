@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: TestAttack
   m_EditorClassIdentifier: 
   attackName: TestAttack
-  rangeType: 1
+  rangeType: 4
   damage: 10
-  castTime: 2
+  castTime: 1
   cooldown: 5
-  range: 3
-  angle: 60
-  width: 5
+  range: 8
+  angle: 180
+  width: 1
   innerRadius: 3
   telegraphPrefab: {fileID: 0}
   attackEffectPrefab: {fileID: 0}
