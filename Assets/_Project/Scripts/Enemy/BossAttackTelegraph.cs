@@ -20,6 +20,9 @@ namespace RpgPractice
 
         private BossAttackData currentAttackData;
         private Coroutine telegraphCoroutine;
+
+
+        public event Action<BossAttackData, Vector3, Vector3> OnTelegraphComplete;
         
         
         
@@ -66,6 +69,8 @@ namespace RpgPractice
                 yield return null;
             }
             
+            
+            OnTelegraphComplete?.Invoke(currentAttackData, center, forward);
             //텔레그래프 종료
             HideRangeIndicator();
         }

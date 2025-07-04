@@ -17,7 +17,7 @@ namespace RpgPractice
         public override void Attack()
         {
             if (attackTimer.IsRunning) return;
-            if (gameObject.GetComponent<Health>().IsDead) return;
+            if (health.IsDead) return;
             attackTimer.Start();
             if (!projectileData) return;
             var proj = PoolManager.instance.Get(projectileData.prefab);

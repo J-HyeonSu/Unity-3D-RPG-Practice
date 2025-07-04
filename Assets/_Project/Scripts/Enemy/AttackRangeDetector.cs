@@ -10,9 +10,10 @@ namespace RpgPractice
         //원형 범위 공격
         public static List<Transform> GetTargetsInCircle(Vector3 center, float radius, LayerMask targetMask)
         {
+            
             List<Transform> targets = new List<Transform>();
             Collider[] colliders = Physics.OverlapSphere(center, radius, targetMask);
-
+            
             foreach (var collider in colliders)
             {
                 targets.Add(collider.transform);

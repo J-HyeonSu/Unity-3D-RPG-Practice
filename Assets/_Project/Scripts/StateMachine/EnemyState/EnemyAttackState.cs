@@ -31,7 +31,6 @@ namespace RpgPractice
         {
             if (!enemy.attackTimer.IsRunning)
             {
-                Debug.Log("At");
                 animator.Play(AttackHash, 0, 0f);
                 enemy.Attack();
             }
