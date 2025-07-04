@@ -7,15 +7,16 @@ namespace RpgPractice
     [CreateAssetMenu(fileName = "InputReader", menuName = "RpgPractice/InputReader")]
     public class InputReader : ScriptableObject, RpgInputAction.IPlayerActions
     {
-        public event UnityAction<Vector2> Move = delegate { };
-        public event UnityAction<Vector2, bool> Look = delegate { };
-        public event UnityAction EnableMouseControlCamera = delegate { };
-        public event UnityAction DisableMouseControlCamera = delegate { };
-        public event UnityAction<bool> Jump = delegate { };
-        public event UnityAction<bool> Dash = delegate { };
-        public event UnityAction Attack = delegate { };
-        public event UnityAction SubAttack = delegate { };
-        public event UnityAction<bool> FixedCamera = delegate { };
+        public event UnityAction<Vector2> Move ;
+        public event UnityAction<Vector2, bool> Look ;
+        public event UnityAction EnableMouseControlCamera ;
+        public event UnityAction DisableMouseControlCamera ;
+        public event UnityAction<bool> Jump ;
+        public event UnityAction<bool> Dash ;
+        public event UnityAction Attack ;
+        public event UnityAction SubAttack ;
+        public event UnityAction<bool> FixedCamera ;
+        public event UnityAction<float> Scroll;
         
 
         private RpgInputAction inputAction;
@@ -40,12 +41,12 @@ namespace RpgPractice
 
         public void OnMove(InputAction.CallbackContext context)
         {
-            Move.Invoke(context.ReadValue<Vector2>());
+            Move?.Invoke(context.ReadValue<Vector2>());
         }
 
         public void OnLook(InputAction.CallbackContext context)
         {
-            Look.Invoke(context.ReadValue<Vector2>(), IsDeviceMouse(context));
+            Look?.Invoke(context.ReadValue<Vector2>(), IsDeviceMouse(context));
         }
 
         bool IsDeviceMouse(InputAction.CallbackContext context) => context.control.device.name == "Mouse";
@@ -57,11 +58,11 @@ namespace RpgPractice
             {
                 case InputActionPhase.Started:
                     IsFreeLookMode = true;
-                    EnableMouseControlCamera.Invoke();
+                    EnableMouseControlCamera?.Invoke();
                     break;
                 case InputActionPhase.Canceled:
                     IsFreeLookMode = false;
-                    DisableMouseControlCamera.Invoke();
+                    DisableMouseControlCamera?.Invoke();
                     break;
             }
         }
@@ -71,10 +72,10 @@ namespace RpgPractice
             switch (context.phase)
             {
                 case InputActionPhase.Started:
-                    Jump.Invoke(true);
+                    Jump?.Invoke(true);
                     break;
                 case InputActionPhase.Canceled:
-                    Jump.Invoke(false);
+                    Jump?.Invoke(false);
                     break;
             }
         }
@@ -83,7 +84,7 @@ namespace RpgPractice
         {
             if (context.phase == InputActionPhase.Started)
             {
-                SubAttack.Invoke();                
+                SubAttack?.Invoke();                
             }
         }
 
@@ -92,10 +93,10 @@ namespace RpgPractice
             switch (context.phase)
             {
                 case InputActionPhase.Started:
-                    Dash.Invoke(true);
+                    Dash?.Invoke(true);
                     break;
                 case InputActionPhase.Canceled:
-                    Dash.Invoke(false);
+                    Dash?.Invoke(false);
                     break;
             }
         }
@@ -105,9 +106,14 @@ namespace RpgPractice
             switch (context.phase)
             {
                 case InputActionPhase.Started:
-                    FixedCamera.Invoke(true);
+                    FixedCamera?.Invoke(true);
                     break;
             }
+        }
+
+        public void OnCameraZoom(InputAction.CallbackContext context)
+        {
+            Scroll?.Invoke(context.ReadValue<float>());
         }
 
 
@@ -115,7 +121,8 @@ namespace RpgPractice
         {
             if (context.phase == InputActionPhase.Started)
             {
-                Attack.Invoke();                
+                
+                Attack?.Invoke();                
             }
             
         }

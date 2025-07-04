@@ -22,6 +22,11 @@ namespace RpgPractice
         
         [Header("Camera Sensitivity")]
         [SerializeField] private float sensitivity = 1.0f;
+        
+        [Header("Camera Zoom")]
+        [SerializeField] private float zoomSpeed = 0.8f;
+        [SerializeField] private float zoomMinClamp = 3.0f;
+        [SerializeField] private float zoomMaxClamp = 15.0f;
 
 
         // Camera
@@ -31,26 +36,49 @@ namespace RpgPractice
         private Vector3 inputCameraMovement;
         private bool isDeviceMouse;
 
+        //test
+        private Cinemachine3rdPersonFollow thirdPersonFollow;
         private void Start()
         {
             cinemachineTargetYaw = followCameraRoot.transform.rotation.eulerAngles.y;
             cinemachineTargetPitch = followCameraRoot.transform.rotation.eulerAngles.x;
+
+            thirdPersonFollow = cineVCam.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
         }
 
         void OnEnable()
         {
             input.Look += OnLook;
             input.FixedCamera += SetFixedCameraMode;
-            
+            input.Scroll += InputReader_Scroll;
+
 
         }
         void OnDisable()
         {
             input.Look -= OnLook;
             input.FixedCamera -= SetFixedCameraMode;
-            
+            input.Scroll -= InputReader_Scroll;
         }
-        
+
+        private void InputReader_Scroll(float scrollValue)
+        {
+            if (thirdPersonFollow != null)
+            {
+                // 현재 카메라 거리 가져오기
+                float currentDistance = thirdPersonFollow.CameraDistance;
+            
+                // 스크롤 값에 따라 거리 조절
+                float newDistance = currentDistance - (scrollValue * zoomSpeed);
+            
+                // 최소/최대 거리 제한
+                newDistance = Mathf.Clamp(newDistance, zoomMinClamp, zoomMaxClamp);
+            
+                // 새로운 거리 적용
+                thirdPersonFollow.CameraDistance = newDistance;
+            }
+        }
+
         private void LateUpdate()
         {
             HandleCameraRotation();

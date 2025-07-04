@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.AI;
 using Utilities;
@@ -13,7 +14,6 @@ namespace RpgPractice
 
         [SerializeField] private BossAttackTelegraph bossAttackTelegraph;
         [SerializeField] private BossAttackData[] bossAttackDatas;
-        [SerializeField] private Transform model;
         
         private GolemAttackPattern lastAttack;
         
@@ -72,73 +72,89 @@ namespace RpgPractice
             if (health.IsDead) return;
             attackTimer.Start();
             
-            GolemAttackPattern currentAttack = 0;
-            while (lastAttack != currentAttack)
+            GolemAttackPattern currentAttack = (GolemAttackPattern)Random.Range(0, 3);
+            while (lastAttack == currentAttack)
             {
                 currentAttack = (GolemAttackPattern)Random.Range(0, 3);
             }
+
+            lastAttack = currentAttack;
             
             //점프공격 테스트용
-            currentAttack = 0;
-
+            //currentAttack = (GolemAttackPattern)0;
+            
             switch (currentAttack)
             {
-                default:
                 case GolemAttackPattern.JumpAttack:
+                    //대상 점프 공격
                     JumpAttackStart(bossAttackDatas[(int)currentAttack]);
                     break;
                 case GolemAttackPattern.RightAttack:
+                    //오른손 전방 180도 부채꼴
+                    bossAttackTelegraph.ShowTelegraph(bossAttackDatas[(int)currentAttack], transform.position, transform.forward);
+                    animator.SetTrigger("RightAttack");
                     break;
                 case GolemAttackPattern.LeftAttack:
+                    //왼손 부채꼴 90도 왼쪽으로 30도 틀어서 왼,앞만 맞게
+                    bossAttackTelegraph.ShowTelegraph(bossAttackDatas[(int)currentAttack], transform.position, Quaternion.AngleAxis(-30f, Vector3.up) * transform.forward);
+                    animator.SetTrigger("LeftAttack");
                     break;
                 case GolemAttackPattern.Roaring:
+                    //전방레이저
+                    bossAttackTelegraph.ShowTelegraph(bossAttackDatas[(int)currentAttack], transform.position, transform.forward);
+                    animator.SetTrigger("Roaring");
+                    //레이저 관련 설정
                     break;
                 
             }
             
-
         }
 
         private void JumpAttackStart(BossAttackData currentAttack)
         {
+            //공격위치, 방법
+            bossAttackTelegraph.ShowTelegraph(currentAttack, playerDetector.Player.position, transform.forward);
+            
+            //애니메이션 처리
             animator.SetTrigger("JumpAttack");
-            bossAttackTelegraph.ShowTelegraph(currentAttack, transform.position, transform.forward);
-
-            StartCoroutine(JumpCoroutine(5.0f, currentAttack.castTime));
+            StartCoroutine(JumpCoroutine(6.0f, currentAttack.castTime, playerDetector.Player.position));
         }
 
-        IEnumerator JumpCoroutine(float height, float totalTime)
+        IEnumerator JumpCoroutine(float height, float totalTime, Vector3 targetPosition)
         {
-            Vector3 startPosition = transform.position;
-            float halfTime = totalTime * 0.5f; // 올라가는 시간 = 내려가는 시간
+            var startPosition = transform.position;
     
-            // 올라가기
+            // 보스의 Collider 크기 가져오기
+            Collider bossCollider = GetComponent<Collider>();
+            float bossRadius = bossCollider.bounds.size.x * 0.5f;
+            
+            Vector3 direction = (targetPosition - startPosition).normalized;
+            Vector3 actualTarget = targetPosition - direction * bossRadius;
+            
             float elapsedTime = 0f;
-            while (elapsedTime < halfTime)
+            while (elapsedTime < totalTime)
             {
                 elapsedTime += Time.deltaTime;
-                float progress = elapsedTime / halfTime;
-                float currentHeight = Mathf.Lerp(0f, height, progress);
+                float progress = elapsedTime / totalTime;
+
+                float jumpProgress = Mathf.Sin(progress * Mathf.PI);
+                float currentHeight = jumpProgress * height;
+                
+                Vector3 horizontalPosition = Vector3.Lerp(startPosition, actualTarget, progress);
         
-                transform.position = startPosition + Vector3.up * currentHeight;
-                yield return null;
-            }
-    
-            // 내려가기
-            elapsedTime = 0f;
-            while (elapsedTime < halfTime)
-            {
-                elapsedTime += Time.deltaTime;
-                float progress = elapsedTime / halfTime;
-                float currentHeight = Mathf.Lerp(height, 0f, progress);
-        
-                transform.position = startPosition + Vector3.up * currentHeight;
+                // // 현재 Y좌표는 애니메이션이 처리하고 있으므로 유지
+                // float currentY = transform.position.y;
+                //
+                // // X, Z만 업데이트하고 Y는 애니메이션 그대로
+                // transform.position = new Vector3(horizontalPosition.x, currentY, horizontalPosition.z);
+                
+                transform.position = horizontalPosition + Vector3.up * currentHeight;
                 yield return null;
             }
     
             // 정확한 착지 위치 보정
-            transform.position = startPosition;
-            
+            transform.position = targetPosition;
+
         }
     }
 }

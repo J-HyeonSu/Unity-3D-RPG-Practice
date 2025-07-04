@@ -76,6 +76,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "CameraZoom",
+                    "type": "PassThrough",
+                    "id": "b2bd373c-66c5-4eae-ab09-1327dc2d4bac",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -373,6 +382,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "FixCameraMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1b08a09b-d94a-4aff-89fa-20ad6ce3086f",
+                    "path": "<Mouse>/scroll/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "CameraZoom",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

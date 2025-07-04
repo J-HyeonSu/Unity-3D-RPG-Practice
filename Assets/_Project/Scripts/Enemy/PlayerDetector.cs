@@ -9,7 +9,7 @@ namespace RpgPractice
         [SerializeField] private float detectionRadius = 10f;
         [SerializeField] private float innerDetectionRadius = 5f;
         [SerializeField] private float detectionCooldown = 1f;
-        private float attackRange = 2f;
+        [SerializeField] private float attackRange = 2f;
 
         
         public Transform Player { get; private set; }

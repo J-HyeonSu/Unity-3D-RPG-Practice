@@ -26,7 +26,7 @@ namespace RpgPractice
         public override void Update()
         {
             // if (enemy.isDetected)
-            // {
+            // {    
             //     agent.SetDestination(player.position);
             //     return;
             // }

@@ -162,6 +162,15 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CameraZoom"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""b2bd373c-66c5-4eae-ab09-1327dc2d4bac"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -459,6 +468,17 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""FixCameraMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1b08a09b-d94a-4aff-89fa-20ad6ce3086f"",
+                    ""path"": ""<Mouse>/scroll/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""CameraZoom"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1054,6 +1074,7 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
         m_Player_SubAttack = m_Player.FindAction("SubAttack", throwIfNotFound: true);
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
         m_Player_FixCameraMode = m_Player.FindAction("FixCameraMode", throwIfNotFound: true);
+        m_Player_CameraZoom = m_Player.FindAction("CameraZoom", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1155,6 +1176,7 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_SubAttack;
     private readonly InputAction m_Player_Dash;
     private readonly InputAction m_Player_FixCameraMode;
+    private readonly InputAction m_Player_CameraZoom;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1198,6 +1220,10 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/FixCameraMode".
         /// </summary>
         public InputAction @FixCameraMode => m_Wrapper.m_Player_FixCameraMode;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/CameraZoom".
+        /// </summary>
+        public InputAction @CameraZoom => m_Wrapper.m_Player_CameraZoom;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1248,6 +1274,9 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
             @FixCameraMode.started += instance.OnFixCameraMode;
             @FixCameraMode.performed += instance.OnFixCameraMode;
             @FixCameraMode.canceled += instance.OnFixCameraMode;
+            @CameraZoom.started += instance.OnCameraZoom;
+            @CameraZoom.performed += instance.OnCameraZoom;
+            @CameraZoom.canceled += instance.OnCameraZoom;
         }
 
         /// <summary>
@@ -1283,6 +1312,9 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
             @FixCameraMode.started -= instance.OnFixCameraMode;
             @FixCameraMode.performed -= instance.OnFixCameraMode;
             @FixCameraMode.canceled -= instance.OnFixCameraMode;
+            @CameraZoom.started -= instance.OnCameraZoom;
+            @CameraZoom.performed -= instance.OnCameraZoom;
+            @CameraZoom.canceled -= instance.OnCameraZoom;
         }
 
         /// <summary>
@@ -1639,6 +1671,13 @@ public partial class @RpgInputAction: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnFixCameraMode(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CameraZoom" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCameraZoom(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
