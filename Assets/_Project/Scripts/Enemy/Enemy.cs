@@ -18,8 +18,11 @@ namespace RpgPractice
         [SerializeField] protected float wanderRadius = 10;
         [SerializeField] protected float timeBetweenAttacks = 1f;
         [SerializeField] protected int attackDamage = 10;
-        
         [SerializeField] protected float destroyTime = 10f;
+        
+        [Header("아이템 드롭")]
+        [SerializeField] private ItemDropTable dropTable;
+        [SerializeField] private bool dropItemsOnDeath = true;
         
 
         protected StateMachine stateMachine;
@@ -98,10 +101,15 @@ namespace RpgPractice
         public override void Die()
         {
             agent.enabled = false;
+            if (dropItemsOnDeath && dropTable)
+            {
+                ItemDropManager.Instance.DropFromTable(dropTable, transform.position);
+            }
             StartCoroutine(DieCoroutine());
         }
         IEnumerator DieCoroutine()
         {
+            
             yield return new WaitForSeconds(destroyTime);
             Destroy(gameObject);
         }

@@ -12,18 +12,22 @@ namespace RpgPractice
     {
         enum GolemAttackPattern { JumpAttack, RightAttack, LeftAttack, Roaring }
 
-        [SerializeField] private BossAttackTelegraph bossAttackTelegraph;
+        //[SerializeField] private BossAttackTelegraph bossAttackTelegraph;
         [SerializeField] private BossAttackData[] bossAttackDatas;
+        [SerializeField] private GameObject telegraphPrefab;
+        
         
         private GolemAttackPattern lastAttack;
         
         //debug
+        public bool debugAttack;    
+        public int testAttackNum = 0;
         private Vector3 ct;
         private float rad;
         protected override void Start()
         {
             SetupStateMachine();
-            bossAttackTelegraph.OnTelegraphComplete += BossAttackTelegraph_OnTelegraphComplete;
+            //bossAttackTelegraph.OnTelegraphComplete += BossAttackTelegraph_OnTelegraphComplete;
         }
 
         private void BossAttackTelegraph_OnTelegraphComplete(BossAttackData bossAttackData, Vector3 center, Vector3 forward)
@@ -36,6 +40,18 @@ namespace RpgPractice
                 {
                     transform.gameObject.GetComponent<Health>().TakeDamage(bossAttackData.damage);
                 }
+            }
+        }
+
+        private void ShowTelegraphWithCallback(BossAttackData currentData, Vector3 center, Vector3 forward)
+        {
+            var telegraphObj = PoolManager.instance.Get(telegraphPrefab);
+            var telegraph = telegraphObj.GetComponent<BossAttackTelegraph>();
+
+            if (telegraph)
+            {
+                telegraph.OnTelegraphComplete += BossAttackTelegraph_OnTelegraphComplete;
+                telegraph.ShowTelegraph(currentData, center, forward);
             }
         }
 
@@ -72,16 +88,22 @@ namespace RpgPractice
             if (health.IsDead) return;
             attackTimer.Start();
             
+            
             GolemAttackPattern currentAttack = (GolemAttackPattern)Random.Range(0, 3);
             while (lastAttack == currentAttack)
             {
                 currentAttack = (GolemAttackPattern)Random.Range(0, 3);
             }
-
+            
             lastAttack = currentAttack;
             
-            //점프공격 테스트용
+            //공격 테스트용
             //currentAttack = (GolemAttackPattern)0;
+            if (debugAttack)
+            {
+                currentAttack = (GolemAttackPattern)testAttackNum;
+            }
+            
             
             switch (currentAttack)
             {
@@ -91,29 +113,54 @@ namespace RpgPractice
                     break;
                 case GolemAttackPattern.RightAttack:
                     //오른손 전방 180도 부채꼴
-                    bossAttackTelegraph.ShowTelegraph(bossAttackDatas[(int)currentAttack], transform.position, transform.forward);
+                    ShowTelegraphWithCallback(bossAttackDatas[(int)currentAttack], transform.position, transform.forward);
                     animator.SetTrigger("RightAttack");
                     break;
                 case GolemAttackPattern.LeftAttack:
                     //왼손 부채꼴 90도 왼쪽으로 30도 틀어서 왼,앞만 맞게
-                    bossAttackTelegraph.ShowTelegraph(bossAttackDatas[(int)currentAttack], transform.position, Quaternion.AngleAxis(-30f, Vector3.up) * transform.forward);
+                    ShowTelegraphWithCallback(bossAttackDatas[(int)currentAttack], transform.position, Quaternion.AngleAxis(-30f, Vector3.up) * transform.forward);
                     animator.SetTrigger("LeftAttack");
                     break;
                 case GolemAttackPattern.Roaring:
-                    //전방레이저
-                    bossAttackTelegraph.ShowTelegraph(bossAttackDatas[(int)currentAttack], transform.position, transform.forward);
-                    animator.SetTrigger("Roaring");
-                    //레이저 관련 설정
+                    RoaringAttackStart(bossAttackDatas[(int)currentAttack]);
+
                     break;
                 
             }
             
         }
 
+        private void RoaringAttackStart(BossAttackData currentAttack)
+        {
+            //전방레이저
+            
+            animator.SetTrigger("Roaring");
+            //레이저 관련 설정
+            StartCoroutine(RoaringCoroutine(currentAttack));
+        }
+
+        IEnumerator RoaringCoroutine(BossAttackData currentAttack)
+        {
+            float[] progressPoints = { 0.25f, 0.5f, 0.75f };
+    
+            for (int i = 0; i < progressPoints.Length; i++)
+            {
+                float waitTime = currentAttack.castTime * progressPoints[i];
+                if (i > 0)
+                    waitTime -= currentAttack.castTime * progressPoints[i-1]; // 누적 시간 빼기
+        
+                yield return new WaitForSeconds(waitTime);
+                ShowTelegraphWithCallback(currentAttack, transform.position, Quaternion.AngleAxis(30f*i-30, Vector3.up) * transform.forward);
+            }
+            
+            yield return new WaitForSeconds(currentAttack.castTime * 0.25f);
+        }
+
         private void JumpAttackStart(BossAttackData currentAttack)
         {
             //공격위치, 방법
-            bossAttackTelegraph.ShowTelegraph(currentAttack, playerDetector.Player.position, transform.forward);
+            ShowTelegraphWithCallback(currentAttack, playerDetector.Player.position, transform.forward);
+            //bossAttackTelegraph.ShowTelegraph(currentAttack, playerDetector.Player.position, transform.forward);
             
             //애니메이션 처리
             animator.SetTrigger("JumpAttack");

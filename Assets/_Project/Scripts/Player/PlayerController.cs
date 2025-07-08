@@ -178,7 +178,7 @@ namespace RpgPractice
             inputReader.EnablePlayerActions();
             weaponManager.ChangeWeapon(weaponManager.CurrentWeapon);
             Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            Cursor.visible = true;
         }
 
         void Update()

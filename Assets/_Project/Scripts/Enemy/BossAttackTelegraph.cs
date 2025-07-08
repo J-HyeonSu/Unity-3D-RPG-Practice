@@ -2,12 +2,14 @@
 using System.Collections;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 using UnityEngine.Rendering.Universal;
 
 namespace RpgPractice
 {
     public class BossAttackTelegraph : MonoBehaviour
     {
+        
         [Header("시각적 피드백")] 
         [SerializeField] private ParticleSystem chargeEffect;
         [SerializeField] private DecalProjector decalProjector;
@@ -23,9 +25,12 @@ namespace RpgPractice
 
 
         public event Action<BossAttackData, Vector3, Vector3> OnTelegraphComplete;
-        
-        
-        
+
+
+        public void ClearEvent()
+        {
+            OnTelegraphComplete = null;
+        }
 
         public void ShowTelegraph(BossAttackData attackData, Vector3 center, Vector3 forward)
         {
@@ -71,8 +76,10 @@ namespace RpgPractice
             
             
             OnTelegraphComplete?.Invoke(currentAttackData, center, forward);
-            //텔레그래프 종료
             HideRangeIndicator();
+            //텔레그래프 종료
+            ClearEvent();
+            gameObject.SetActive(false);
         }
 
         void ShowRangeIndicator(Vector3 center, Vector3 forward)
@@ -265,8 +272,9 @@ namespace RpgPractice
         void SetProjectorPosition(Vector3 position)
         {
             if (!decalProjector && !backgroundDecalProjector) return;
-            decalProjector.transform.position = position;
-            backgroundDecalProjector.transform.position = position;
+            transform.position = position;
+            //decalProjector.transform.position = position;
+            //backgroundDecalProjector.transform.position = position;
         }
     }
 }

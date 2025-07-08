@@ -13,7 +13,5 @@ namespace RpgPractice
             instance = this;
         }
         
-        
-        
     }
 }

@@ -7,8 +7,6 @@ namespace RpgPractice
 
     public class PoolManager : MonoBehaviour
     {
-        // public GameObject[] prefabs;
-        // private List<GameObject>[] pools;
         public static PoolManager instance;
         private Dictionary<GameObject, List<GameObject>> pools;
 
@@ -16,13 +14,6 @@ namespace RpgPractice
         {
             instance = this;
             pools = new Dictionary<GameObject, List<GameObject>>();
-            // //pools 리스트배열만들고 초기화
-            // pools = new List<GameObject>[prefabs.Length];
-            //
-            // for (int index = 0; index < pools.Length; index++)
-            // {
-            //     pools[index] = new List<GameObject>();
-            // }
         }
 
         public GameObject Get(ProjectileData projectileData)
