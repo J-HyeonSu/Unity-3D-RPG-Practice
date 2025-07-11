@@ -9,30 +9,28 @@ namespace RpgPractice
         private ProjectileData data;
         private GameObject shooter;
         
-        private float damage;
         private float currentLength;
         private float currentTime;
         private int currentHit;
 
-        public void Init(GameObject shooter, Vector3 position, Vector3 direction, ProjectileData projectileData,float attackPower)
+        public void Init(GameObject shooter, Vector3 position, Vector3 direction, ProjectileData data)
         {
-            this.data = projectileData;
+            this.data = data;
             this.shooter = shooter;
 
-            if (!projectileData)
+            if (!data)
             {
                 Debug.Log("projectileData 없음");
             }
 
-            if (!projectileData.prefab)
+            if (!data.prefab)
             {
                 Debug.Log("projectileData prefab 없음");
             }
-            
-            damage = attackPower * data.damageCoefficient;
             currentLength = 0;
             currentTime = 0;
             currentHit = 0;
+            
             
             transform.parent.position = position;
             transform.position = new Vector3(position.x, position.y+1, position.z);
@@ -92,7 +90,7 @@ namespace RpgPractice
             {
                 if (health.IsDead) return;
                 AudioManager.instance.PlaySfx(AudioManager.Sfx.Hit);
-                health.TakeDamage(damage);
+                health.TakeDamage(data.damage);
                 currentHit++;
                 
                 //마나 관련

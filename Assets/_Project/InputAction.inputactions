@@ -24,24 +24,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Fire",
-                    "type": "Button",
-                    "id": "8579937a-64b6-40c0-bf18-0264461ca739",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "MouseControlCamera",
-                    "type": "Button",
-                    "id": "86a1dd7d-7737-4818-81e0-12dc5ac64079",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Jump",
                     "type": "Button",
                     "id": "5ade1b68-10cc-48fd-b226-3444666ffd8b",
@@ -51,9 +33,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SubAttack",
+                    "name": "CameraZoom",
+                    "type": "PassThrough",
+                    "id": "b2bd373c-66c5-4eae-ab09-1327dc2d4bac",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "FixCameraMode",
                     "type": "Button",
-                    "id": "e3239740-7693-443e-a549-b361a645fa36",
+                    "id": "1656ba25-4b6a-49e3-9145-9713ff989327",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -69,22 +60,58 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "FixCameraMode",
+                    "name": "LeftClick",
                     "type": "Button",
-                    "id": "1656ba25-4b6a-49e3-9145-9713ff989327",
+                    "id": "8579937a-64b6-40c0-bf18-0264461ca739",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "CameraZoom",
-                    "type": "PassThrough",
-                    "id": "b2bd373c-66c5-4eae-ab09-1327dc2d4bac",
+                    "name": "RightClick",
+                    "type": "Button",
+                    "id": "e3239740-7693-443e-a549-b361a645fa36",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Skill1",
+                    "type": "Button",
+                    "id": "54c59725-394b-4ed4-9ce1-c65ede197834",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Skill2",
+                    "type": "Button",
+                    "id": "4afb3eca-0d21-4ea8-9bfb-3cf2dbb58650",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Skill3",
+                    "type": "Button",
+                    "id": "59ee52a6-3be7-4790-9f9c-7fd1a4b5f960",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Skill4",
+                    "type": "Button",
+                    "id": "1028046e-046b-4c21-9e58-0353acaf3183",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -260,7 +287,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "Fire",
+                    "action": "LeftClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -271,7 +298,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Fire",
+                    "action": "LeftClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -282,7 +309,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Touch",
-                    "action": "Fire",
+                    "action": "LeftClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -293,7 +320,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Joystick",
-                    "action": "Fire",
+                    "action": "LeftClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -304,18 +331,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "XR",
-                    "action": "Fire",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "2e7cc632-2ffe-4598-8d5e-458776bf5bf3",
-                    "path": "<Mouse>/middleButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "MouseControlCamera",
+                    "action": "LeftClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -337,7 +353,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SubAttack",
+                    "action": "RightClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -354,29 +370,7 @@
                 },
                 {
                     "name": "",
-                    "id": "699317a5-10db-484b-877f-0bf38f614d21",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "FixCameraMode",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "e6242bd7-309e-47d6-9c94-8c2438a3e4fb",
-                    "path": "<Mouse>/middleButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "FixCameraMode",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "14a3ce0c-2076-431a-ac99-078b22efbdb7",
                     "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
@@ -393,6 +387,50 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "CameraZoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7da52788-8632-4cb6-9ac6-65a35cd4ca09",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Skill1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "35f2694b-1e80-47d1-a08b-827a8ea16369",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Skill2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c77a83c5-5cce-424c-9450-0eb815604958",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Skill3",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "483b7b25-b7b8-46ec-b32a-561d3efd2273",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Skill4",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

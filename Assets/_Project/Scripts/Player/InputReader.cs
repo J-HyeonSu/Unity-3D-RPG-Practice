@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.XR;
+
 namespace RpgPractice
 {
     [CreateAssetMenu(fileName = "InputReader", menuName = "RpgPractice/InputReader")]
@@ -9,19 +11,18 @@ namespace RpgPractice
     {
         public event UnityAction<Vector2> Move ;
         public event UnityAction<Vector2, bool> Look ;
-        public event UnityAction EnableMouseControlCamera ;
-        public event UnityAction DisableMouseControlCamera ;
         public event UnityAction<bool> Jump ;
         public event UnityAction<bool> Dash ;
-        public event UnityAction Attack ;
-        public event UnityAction SubAttack ;
+        public event UnityAction<bool> LeftClick ;
+        public event UnityAction<bool> RightClick ;
         public event UnityAction<bool> FixedCamera ;
         public event UnityAction<float> Scroll;
-        
+        public event UnityAction<bool> Skill1;
+        public event UnityAction<bool> Skill2;
+        public event UnityAction<bool> Skill3;
+        public event UnityAction<bool> Skill4;
 
         private RpgInputAction inputAction;
-
-        public bool IsFreeLookMode { get; private set; }
         
         public Vector3 Direction => inputAction.Player.Move.ReadValue<Vector2>();
 
@@ -33,7 +34,6 @@ namespace RpgPractice
                 inputAction.Player.SetCallbacks(this);
             }
         }
-
         public void EnablePlayerActions()
         {
             inputAction.Enable();
@@ -48,85 +48,35 @@ namespace RpgPractice
         {
             Look?.Invoke(context.ReadValue<Vector2>(), IsDeviceMouse(context));
         }
-
         bool IsDeviceMouse(InputAction.CallbackContext context) => context.control.device.name == "Mouse";
-
         
-        public void OnMouseControlCamera(InputAction.CallbackContext context)
-        {
-            switch (context.phase)
-            {
-                case InputActionPhase.Started:
-                    IsFreeLookMode = true;
-                    EnableMouseControlCamera?.Invoke();
-                    break;
-                case InputActionPhase.Canceled:
-                    IsFreeLookMode = false;
-                    DisableMouseControlCamera?.Invoke();
-                    break;
-            }
-        }
-
-        public void OnJump(InputAction.CallbackContext context)
-        {
-            switch (context.phase)
-            {
-                case InputActionPhase.Started:
-                    Jump?.Invoke(true);
-                    break;
-                case InputActionPhase.Canceled:
-                    Jump?.Invoke(false);
-                    break;
-            }
-        }
-
-        public void OnSubAttack(InputAction.CallbackContext context)
-        {
-            if (context.phase == InputActionPhase.Started)
-            {
-                SubAttack?.Invoke();                
-            }
-        }
-
-        public void OnDash(InputAction.CallbackContext context)
-        {
-            switch (context.phase)
-            {
-                case InputActionPhase.Started:
-                    Dash?.Invoke(true);
-                    break;
-                case InputActionPhase.Canceled:
-                    Dash?.Invoke(false);
-                    break;
-            }
-        }
-
-        public void OnFixCameraMode(InputAction.CallbackContext context)
-        {
-            switch (context.phase)
-            {
-                case InputActionPhase.Started:
-                    FixedCamera?.Invoke(true);
-                    break;
-            }
-        }
-
         public void OnCameraZoom(InputAction.CallbackContext context)
         {
             Scroll?.Invoke(context.ReadValue<float>());
         }
-
-
-        public void OnFire(InputAction.CallbackContext context)
+        
+        private void HandleKeyInput(InputAction.CallbackContext context, UnityAction<bool> action)
         {
-            if (context.phase == InputActionPhase.Started)
+            switch (context.phase)
             {
-                
-                Attack?.Invoke();                
+                case InputActionPhase.Started:
+                    action?.Invoke(true);
+                    break;
+                case InputActionPhase.Canceled:
+                    action?.Invoke(false);
+                    break;
             }
-            
         }
 
-        
+        public void OnSkill1(InputAction.CallbackContext context)=> HandleKeyInput(context, Skill1);
+        public void OnSkill2(InputAction.CallbackContext context)=> HandleKeyInput(context, Skill2);
+        public void OnSkill3(InputAction.CallbackContext context)=> HandleKeyInput(context, Skill3);
+        public void OnSkill4(InputAction.CallbackContext context)=> HandleKeyInput(context, Skill4);
+        public void OnLeftClick(InputAction.CallbackContext context) => HandleKeyInput(context, LeftClick);
+        public void OnRightClick(InputAction.CallbackContext context) => HandleKeyInput(context, RightClick);
+        public void OnFixCameraMode(InputAction.CallbackContext context) => HandleKeyInput(context, FixedCamera);
+        public void OnDash(InputAction.CallbackContext context) => HandleKeyInput(context, Dash);
+        public void OnJump(InputAction.CallbackContext context) => HandleKeyInput(context, Jump);
+
     }
 }

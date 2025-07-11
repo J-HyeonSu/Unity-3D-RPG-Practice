@@ -7,12 +7,11 @@ namespace RpgPractice
     {
         Sword,
         Bow,
-        Staff,
-        Unarmed
+        Staff
     }
     public class WeaponManager : MonoBehaviour
     {
-        [SerializeField] private WeaponType weaponType = WeaponType.Unarmed;
+        [SerializeField] private WeaponType weaponType = WeaponType.Sword;
         [SerializeField] private GameObject[] weapons;
         
         public WeaponType CurrentWeapon => weaponType;

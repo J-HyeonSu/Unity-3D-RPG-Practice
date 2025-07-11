@@ -21,7 +21,7 @@ namespace RpgPractice
 
             var directionToPlayer = player.position - detector.position;
             var angleToPlayer = Vector3.Angle(directionToPlayer, detector.forward);
-
+            
             
             //if the player is not within the detection angle + outer radius (aka the cone in front of the enemy)
             // or is within the inner radius, return false

@@ -9,16 +9,14 @@ namespace RpgPractice
     {
         
         [SerializeField] private InputReader input;
-        //[SerializeField] private CinemachineFreeLook freeLookVCam;
-
         [SerializeField, Range(0.5f, 3f)] private float speedMultiplier;
         
         [Header("Camera Settings")]
         [SerializeField] private float TopClamp = 90f;
         [SerializeField] private float BottomClamp = -40f;
+        [SerializeField] private float rotationSpeed = 15f;
         [SerializeField] private CinemachineVirtualCamera cineVCam;
         [SerializeField] private GameObject followCameraRoot;
-        [SerializeField] private float rotationSpeed = 15f;
         
         [Header("Camera Sensitivity")]
         [SerializeField] private float sensitivity = 1.0f;
@@ -40,6 +38,12 @@ namespace RpgPractice
         private Cinemachine3rdPersonFollow thirdPersonFollow;
         private void Start()
         {
+            cineVCam.Follow = followCameraRoot.transform;
+            cineVCam.LookAt = followCameraRoot.transform;
+            cineVCam.OnTargetObjectWarped(
+                followCameraRoot.transform,
+                followCameraRoot.transform.position - cineVCam.transform.position - Vector3.forward);
+            
             cinemachineTargetYaw = followCameraRoot.transform.rotation.eulerAngles.y;
             cinemachineTargetPitch = followCameraRoot.transform.rotation.eulerAngles.x;
 
@@ -156,6 +160,11 @@ namespace RpgPractice
                 followCameraRoot.transform.rotation = Quaternion.Euler(cinemachineTargetPitch, cinemachineTargetYaw, 0);
                 
             }
+        }
+
+        public Transform GetFollowRootTransform()
+        {
+            return followCameraRoot.transform;
         }
 
         private static float ClampAngle(float lfAngle, float lfMin, float lfMax)

@@ -16,8 +16,6 @@ namespace RpgPractice
     {
         [Header("References")] 
         [SerializeField] private Animator animator;
-        [SerializeField] private CinemachineVirtualCamera cineVCam;
-        [SerializeField] private GameObject followCameraRoot;
         [SerializeField] private InputReader inputReader;
         [SerializeField] private Rigidbody rb;
         [SerializeField] private GroundChecker groundChecker;
@@ -91,17 +89,10 @@ namespace RpgPractice
         
         //animator parameters
         private static readonly int Speed = Animator.StringToHash("Speed");
-        
-        
 
         void Awake()
         {
             mainCam = Camera.main.transform;
-            cineVCam.Follow = followCameraRoot.transform;
-            cineVCam.LookAt = followCameraRoot.transform;
-            cineVCam.OnTargetObjectWarped(
-                followCameraRoot.transform,
-                followCameraRoot.transform.position - cineVCam.transform.position - Vector3.forward);
 
             rb.freezeRotation = true;
             
@@ -222,8 +213,7 @@ namespace RpgPractice
             
             inputReader.Dash += OnDash;
             inputReader.Jump += OnJump;
-            inputReader.Attack += OnAttack;
-            inputReader.SubAttack += OnSubAttack;
+            
 
         }
 
@@ -233,8 +223,6 @@ namespace RpgPractice
             
             inputReader.Dash -= OnDash;
             inputReader.Jump -= OnJump;
-            inputReader.Attack -= OnAttack;
-            inputReader.SubAttack -= OnSubAttack;
         }
 
         void OnDash(bool performed)
@@ -243,8 +231,7 @@ namespace RpgPractice
             animator.SetBool("sprint", sprint);
         }
         
-        
-        void OnSubAttack()
+        void OnSubAttack(bool value)
         {
             
             if (!subAttacking)
@@ -258,7 +245,7 @@ namespace RpgPractice
             }
         }
 
-        void OnAttack()
+        void OnAttack(bool value)
         {
             if (!attackLeftTimer.IsRunning)
             {
@@ -288,23 +275,21 @@ namespace RpgPractice
         {
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
             
-
-            if (stateInfo.IsName("Attack1"))
-            {
-                skillSystem.UseSkill(SkillType.Attack1, transform.position, transform.forward,transform.parent.gameObject ,attackPower);
-                attackNum = 1;
-            }
-            else if (stateInfo.IsName("Attack2"))
-            {
-                skillSystem.UseSkill(SkillType.Attack2, transform.position, transform.forward,transform.parent.gameObject, attackPower);
-                attackNum = 2;
-            }
-            else if (stateInfo.IsName("SubAttack"))
-            {
-                skillSystem.UseSkill(SkillType.SubAttack, transform.position, transform.forward, transform.parent.gameObject,attackPower);
-                attackNum = 3;
-                
-            }
+            // if (stateInfo.IsName("Attack1"))
+            // {
+            //     skillSystem.UseSkill(SkillType.LeftClick, transform.position, transform.forward,transform.parent.gameObject ,attackPower);
+            //     attackNum = 1;
+            // }
+            // else if (stateInfo.IsName("Attack2"))
+            // {
+            //     skillSystem.UseSkill(SkillType.Skill1, transform.position, transform.forward,transform.parent.gameObject, attackPower);
+            //     attackNum = 2;
+            // }
+            // else if (stateInfo.IsName("SubAttack"))
+            // {
+            //     skillSystem.UseSkill(SkillType.RightClick, transform.position, transform.forward, transform.parent.gameObject,attackPower);
+            //     attackNum = 3;
+            // }
             
         }
 
@@ -426,8 +411,8 @@ namespace RpgPractice
                 //targetDirection = transform.parent.TransformDirection(inputDirection);
                 
                 // 카메라 방향을 직접 사용 (부모 회전 무시)
-                Vector3 cameraForward = followCameraRoot.transform.forward;
-                Vector3 cameraRight = followCameraRoot.transform.right;
+                Vector3 cameraForward = cameraManager.GetFollowRootTransform().forward;
+                Vector3 cameraRight = cameraManager.GetFollowRootTransform().right;
                 cameraForward.y = 0;
                 cameraRight.y = 0;
     
