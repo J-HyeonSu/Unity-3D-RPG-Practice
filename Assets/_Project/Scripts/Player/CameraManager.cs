@@ -131,7 +131,11 @@ namespace RpgPractice
 
         void SetFixedCameraMode(bool value)
         {
-            fixedCameraMode = !fixedCameraMode;
+            if (value)
+            {
+                fixedCameraMode = !fixedCameraMode;
+            }
+            
             
             if (fixedCameraMode)
             {

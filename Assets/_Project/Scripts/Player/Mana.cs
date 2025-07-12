@@ -13,8 +13,10 @@ namespace RpgPractice
         
         [SerializeField] private FloatEventChannel playerManaChannel;
         
-        private float currentMana;
+        public float currentMana { get; private set; }
         private float manaRegenTimer;
+        
+        
 
         private void Awake()
         {

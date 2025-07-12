@@ -2,6 +2,7 @@
 using UnityEngine.Events;
 
 namespace RpgPractice {
+    
     public abstract class EventListener<T> : MonoBehaviour {
         [SerializeField] EventChannel<T> eventChannel;
         [SerializeField] UnityEvent<T> unityEvent;

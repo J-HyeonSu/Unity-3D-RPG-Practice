@@ -11,38 +11,49 @@ namespace RpgPractice
 
         public void LeftClick(Transform transform)
         {
-            UseSkill(SkillType.LeftClick, transform.position, transform.forward, transform.gameObject);
+            UseSkill(SkillType.LeftClick, transform.position, transform.forward, transform.parent.gameObject);
+            
         }
 
         public void RightClick(Transform transform)
         {
-            UseSkill(SkillType.RightClick, transform.position, transform.forward, transform.gameObject);
+            UseSkill(SkillType.RightClick, transform.position, transform.forward, transform.parent.gameObject);
         }
 
         public void Skill1(Transform transform)
         {
             Debug.Log("skill1");
+            //막기
         }
 
         public void Skill2(Transform transform)
         {
             Debug.Log("skill2");
+            //돌진
         }
 
         public void Skill3(Transform transform)
         {
             Debug.Log("skill3");
+            //무력
         }
 
         public void Skill4(Transform transform)
         {
             Debug.Log("skill4");
+            //버프
         }
 
         public float GetCooldown(int idx)
         {
             if (!skills[idx]) return 1;
             return skills[idx].cooldown;
+        }
+
+        public float GetManaCost(int idx)
+        {
+            if (!skills[idx]) return 1;
+            return skills[idx].manaCost;
         }
 
         private void UseSkill(SkillType skillType, Vector3 position, Vector3 direction, GameObject shooter)

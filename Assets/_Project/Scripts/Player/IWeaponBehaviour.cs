@@ -11,5 +11,6 @@ namespace RpgPractice
         public void Skill3(Transform transform);
         public void Skill4(Transform transform);
         public float GetCooldown(int idx);
+        public float GetManaCost(int idx);
     }
 }

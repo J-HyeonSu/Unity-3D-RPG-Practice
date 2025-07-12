@@ -8,10 +8,17 @@ namespace RpgPractice
     {
         private ProjectileData data;
         private GameObject shooter;
-        
+        private Collider coll;
+            
         private float currentLength;
         private float currentTime;
         private int currentHit;
+
+        
+        private void Start()
+        {
+            coll = GetComponent<Collider>();
+        }
 
         public void Init(GameObject shooter, Vector3 position, Vector3 direction, ProjectileData data)
         {
@@ -30,6 +37,11 @@ namespace RpgPractice
             currentLength = 0;
             currentTime = 0;
             currentHit = 0;
+
+            if (coll)
+            {
+                coll.enabled = true;
+            }
             
             
             transform.parent.position = position;
@@ -103,7 +115,8 @@ namespace RpgPractice
                 //관통 로직
                 if (!data.piercing || currentHit >= data.maxHits)
                 {
-                    DeactivateProjectile();
+                    //DeactivateProjectile();
+                    coll.enabled = false;
                 }
             }
         }

@@ -1,28 +1,26 @@
 ﻿
-using System;
 using System.Collections.Generic;
-using System.Numerics;
-using Cinemachine;
 using UnityEngine;
-using UnityEngine.Rendering;
+using UnityEngine.Events;
 using Utilities;
 using Quaternion = UnityEngine.Quaternion;
-using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
 namespace RpgPractice
 {
     public class PlayerController : MonoBehaviour
     {
+        // 현재 버그
+        // 좌클콤보공격2 데미지 어떻게 할지 고민
+        // 공격맞자마자 이펙트 사라짐
+        
         [Header("References")] 
         [SerializeField] private Animator animator;
         [SerializeField] private InputReader inputReader;
         [SerializeField] private Rigidbody rb;
         [SerializeField] private GroundChecker groundChecker;
         [SerializeField] public WeaponManager weaponManager;
-        [SerializeField] private SkillSystem skillSystem;
         [SerializeField] private CameraManager cameraManager;
-
         
         [Header("Settings")]
         [SerializeField] private float walkSpeed = 150f;
@@ -32,27 +30,18 @@ namespace RpgPractice
         [Range(0.0f, 0.3f)]
         public float rotationSmoothTime = 0.12f;
         
-
+        
         [Header("Jump Setting")] 
         [SerializeField] float jumpForce = 10f;
         [SerializeField] float jumpDuration = 0.5f;
         [SerializeField] float jumpCooldown = 0f;
         [SerializeField] float gravityMultiplier = 3f;
         
-        [Header("Attack Setting")] 
-        [SerializeField] float attackCooldown = 0.5f;
-        [SerializeField] float attackDistance = 3f;
-        [SerializeField] float attackPower = 10f;
-        
-        //test
-        [SerializeField] private BossAttackTelegraph telegraphTest;
-        [SerializeField] private BossAttackData attackData;
-        
         private StateMachine stateMachine;
         private Transform mainCam;
         
         private const float ZeroF = 0f;
-
+        
         
         
         //movement
@@ -60,23 +49,13 @@ namespace RpgPractice
         private float moveSpeed;
         private float velocity;
         private bool sprint;
-        
         private float jumpVelocity;
-        
         private Vector3 adjustedDirection;
-
-        //attack
-        private int attackNum = 1;
-        private bool subAttacking;
-        private bool mainAttacking;
-        private bool isCombo;
-        
         
         //timer
         private List<Timer> timers;
         private CountdownTimer jumpTimer;
         private CountdownTimer jumpCooldownTimer;
-        private CountdownTimer attackLeftTimer;
         
         // Animation
         private float animationBlend;
@@ -87,12 +66,14 @@ namespace RpgPractice
         private float currentVelocityZ;
         private float velocityX, velocityZ; 
         
-        //animator parameters
-        private static readonly int Speed = Animator.StringToHash("Speed");
+        // attackevent
+        private bool isAttack;
+        public int attackNum { get; private set; }
+        public event UnityAction<int> ChangeAttackState;
 
         void Awake()
         {
-            mainCam = Camera.main.transform;
+            if (Camera.main != null) mainCam = Camera.main.transform;
 
             rb.freezeRotation = true;
             
@@ -113,16 +94,12 @@ namespace RpgPractice
             var locomotionState = new LocomotionState(this, animator);
             var jumpState = new JumpState(this, animator);
             var attackState = new AttackState(this, animator);
-            var subAttackState = new SubAttackState(this, animator);
+            //var subAttackState = new SubAttackState(this, animator);
             var deadState = new DeadState(this, animator);
 
             At(locomotionState, jumpState, new FuncPredicate(() => jumpTimer.IsRunning));
-            //At(locomotionState, attackState, new FuncPredicate(() => attackTimer.IsRunning));
-            //At(attackState, locomotionState, new FuncPredicate(() => !attackTimer.IsRunning));
             
-            
-            Any(attackState,new FuncPredicate(() => attackLeftTimer.IsRunning));
-            Any(subAttackState, new FuncPredicate(() => subAttacking));
+            Any(attackState,new FuncPredicate(() => isAttack));
             Any(locomotionState, new FuncPredicate(ReturnToLocomotionState));
             Any(deadState, new FuncPredicate(() => transform.GetComponentInParent<Health>().IsDead));
 
@@ -135,8 +112,7 @@ namespace RpgPractice
             //기본애니메이션
             return groundChecker.IsGrounded
                    && !jumpTimer.IsRunning
-                   && !mainAttacking
-                   && !subAttacking;
+                   && !isAttack;
         }
 
         void At(IState from, IState to, IPredicate condition)
@@ -157,11 +133,7 @@ namespace RpgPractice
             jumpTimer.OnTimerStart += () => jumpVelocity = jumpForce;
             jumpTimer.OnTimerStop += () => jumpCooldownTimer.Start();
 
-            attackLeftTimer = new CountdownTimer(attackCooldown);
-
-            attackLeftTimer.OnTimerStop += () => isCombo = false;
-
-            timers = new List<Timer>(3) { jumpTimer, jumpCooldownTimer, attackLeftTimer };
+            timers = new List<Timer>(2) { jumpTimer, jumpCooldownTimer };
         }
 
         void Start()
@@ -175,17 +147,10 @@ namespace RpgPractice
         void Update()
         {
             stateMachine.Update();
-            
             HandleTimers();
-
-            if (Input.GetKey(KeyCode.E))
-            {
-                telegraphTest.ShowTelegraph(attackData, transform.position, transform.forward);
-            }
 
         }
         
-
         void HandleTimers()
         {
             foreach (var timer in timers)
@@ -213,9 +178,9 @@ namespace RpgPractice
             
             inputReader.Dash += OnDash;
             inputReader.Jump += OnJump;
-            
-
         }
+
+        
 
         private void OnDisable()
         {
@@ -223,50 +188,31 @@ namespace RpgPractice
             
             inputReader.Dash -= OnDash;
             inputReader.Jump -= OnJump;
+            
         }
 
         void OnDash(bool performed)
         {
             sprint = performed;
-            animator.SetBool("sprint", sprint);
+        }
+
+
+        public void OnAttack(int value)
+        {
+            attackNum = value;
+            
+            isAttack = attackNum >= 0;
+            if (isAttack)
+            {
+                // AttackState 상태일때 들어오는 이벤트 처리
+                ChangeAttackState?.Invoke(value);
+            }
         }
         
-        void OnSubAttack(bool value)
-        {
-            
-            if (!subAttacking)
-            {
-                bool canSubAttack = transform.GetComponentInParent<Mana>().UseMana(20);
-                if (!canSubAttack) return;
-                attackLeftTimer.Stop();
-                subAttacking = true;
-                isCombo = false;
-                
-            }
-        }
-
-        void OnAttack(bool value)
-        {
-            if (!attackLeftTimer.IsRunning)
-            {
-                attackLeftTimer.Start();
-                subAttacking = false;
-                isCombo = false;
-                animator.SetBool("LeftCombo", isCombo);
-                
-            }
-            else if(!isCombo)
-            {
-                isCombo = true;
-                animator.SetBool("LeftCombo", isCombo);
-                //attackLeftTimer.Reset();
-            }
-        }
-
+        
         public void Dead()
         {
             //사망 처리
-            
         }
 
         
@@ -291,17 +237,6 @@ namespace RpgPractice
             //     attackNum = 3;
             // }
             
-        }
-
-        public void AttackEnd()
-        {
-            if (!isCombo || attackNum == 2)
-            {
-                mainAttacking = false;
-                subAttacking = false;
-                attackNum = 0;
-                attackLeftTimer.Stop();
-            }
         }
         
         
@@ -462,23 +397,8 @@ namespace RpgPractice
                 // 뒷걸음 x 옆걸음 x -> 스피드값 그냥 포워드에 넣으면 됨
                 animator.SetFloat("foward", targetSpeed); 
             }
-            
-            
-            //foward, straft
-            
-            
-            
-            
-            // 캐릭터를 사용하는 경우 애니메이터 업데이트
-            // if (animator)
-            // {
-            //     // _animator.SetFloat(_animIDSpeed, _animationBlend);
-            
-            //     // _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
-            //     
-            //     animator.SetFloat("Velocity X", currentVelocityX);
-            //     animator.SetFloat("Velocity Z", currentVelocityZ);
-            // }
         }
+
+        public bool GetSprint() { return sprint; }
     }
 }

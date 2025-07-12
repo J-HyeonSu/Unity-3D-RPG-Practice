@@ -38,5 +38,10 @@ namespace RpgPractice
         {
             throw new System.NotImplementedException();
         }
+
+        public float GetManaCost(int idx)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -4,6 +4,7 @@ namespace RpgPractice
 {
     public class LocomotionState : BaseState
     {
+        private bool change;
         public LocomotionState(PlayerController player, Animator animator) : base(player, animator)
         {
             
@@ -25,6 +26,17 @@ namespace RpgPractice
 
         public override void FixedUpdate()
         {
+            if (!change && player.GetSprint())
+            {
+                animator.CrossFade(RunHash, crossFadeDuration);    
+                change = true;
+            }
+            else if (change && !player.GetSprint())
+            {
+                animator.CrossFade(LocomotionHash, crossFadeDuration);
+                change = false;
+            }
+            
             player.HandleMovement();
         }
     }

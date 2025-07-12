@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using Utilities;
 
 namespace RpgPractice
@@ -13,6 +14,7 @@ namespace RpgPractice
     // 플레이어의 공격, 스킬 담당
     public class CombatSystem : MonoBehaviour
     {
+        [SerializeField] private IntEventChannel onSkillEventChannel;
         [SerializeField] private InputReader inputReader;
         [SerializeField] private FloatEventChannel[] skillFloatEventChannels;
         [SerializeField] private SkillSword sword;
@@ -24,12 +26,19 @@ namespace RpgPractice
         private CountdownTimer[] timers;
         private bool[] onSkills;
         private bool isCasting;
+        private SkillType currentAttack;
+
+        private Mana playerMana;
+        private Health playerHealth;
 
         private void Start()
         {
+            playerHealth = GetComponentInParent<Health>();
+            playerMana = GetComponentInParent<Mana>();
             currentWeapon = sword;
             onSkills = new bool[6];
             timers = new CountdownTimer[6];
+            
             
             for (int i = 0; i < timers.Length; i++)
             {
@@ -47,7 +56,7 @@ namespace RpgPractice
             if (skillFloatEventChannels[skillIndex])
             {
                 skillFloatEventChannels[skillIndex]?.Invoke(0);
-                isCasting = false;
+                
             }
         }
 
@@ -96,9 +105,11 @@ namespace RpgPractice
 
             for(int i=0; i<onSkills.Length; i++)
             {
-                if (onSkills[i] && !timers[i].IsRunning)
+                if (onSkills[i] && CanUseSkill(i))
                 {
-                    ExecuteSkill((SkillType)i);
+                    onSkillEventChannel?.Invoke(i);
+                    timers[i].Start();
+                    currentAttack = (SkillType)i;
                     isCasting = true;
                     break;
                 }
@@ -106,12 +117,29 @@ namespace RpgPractice
             
         }
 
-        private void ExecuteSkill(SkillType skillType)
+        bool CanUseSkill(int skillIndex)
         {
-            //쿨타임
-            timers[(int)skillType].Start();
+            if (timers[skillIndex].IsRunning) return false;
+            if (playerHealth)
+            {
+                if (playerHealth.IsDead) return false;
+            }
 
-            switch (skillType)
+            if (playerMana)
+            {
+                float requiredMana = currentWeapon.GetManaCost(skillIndex);
+                if (!playerMana.UseMana(requiredMana)) return false;
+            }
+
+            
+
+            return true;
+        }
+        
+
+        public void CastingEndAnim()
+        {
+            switch (currentAttack)
             {
                 case SkillType.LeftClick: currentWeapon.LeftClick(transform); break;
                 case SkillType.RightClick: currentWeapon.RightClick(transform); break;
@@ -119,16 +147,20 @@ namespace RpgPractice
                 case SkillType.Skill2: currentWeapon.Skill2(transform); break;
                 case SkillType.Skill3: currentWeapon.Skill3(transform); break;
                 case SkillType.Skill4: currentWeapon.Skill4(transform); break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(skillType), skillType, null);
             }
+            isCasting = false;
+            
         }
 
-        public void CastingEndAnim()
+        public void OnAttackEndAnim()
         {
-            //애니메이션 이벤트
+            // -1일시 isAttack = false;
+            onSkillEventChannel?.Invoke(-1);
             isCasting = false;
         }
+
+        
+        
         
         private void OnEnable()
         {
