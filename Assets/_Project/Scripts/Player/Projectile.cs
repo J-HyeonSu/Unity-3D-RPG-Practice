@@ -108,8 +108,7 @@ namespace RpgPractice
                 //마나 관련
                 if (shooter.CompareTag("Player"))
                 {
-                    //일단 10하고 나중에 projectiledata 구조 바꾸던 해야됨
-                    shooter.GetComponent<Mana>().RestoreMana(10);
+                    shooter.GetComponent<Mana>().RestoreMana(data.manaRestore);
                 }
 
                 //관통 로직

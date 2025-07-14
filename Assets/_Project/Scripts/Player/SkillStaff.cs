@@ -4,7 +4,7 @@ namespace RpgPractice
 {
     public class SkillStaff : ScriptableObject, IWeaponBehaviour
     {
-        public void LeftClick(Transform transform)
+        public void LeftClick(Transform transform,bool combo)
         {
             throw new System.NotImplementedException();
         }

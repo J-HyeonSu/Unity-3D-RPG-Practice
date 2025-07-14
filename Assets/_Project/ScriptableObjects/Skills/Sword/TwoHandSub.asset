@@ -14,8 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 8554229276402996251, guid: 5fc116f0d76ac4d4092aad3d3aeaebfc, type: 3}
   speed: 25
-  damageCoefficient: 1.5
+  damage: 10
   length: 5
   lifeTime: 10
   piercing: 0
   maxHits: 1
+  manaCost: 20
+  cooldown: 0.5
+  manaRestore: 0
+  knockbackForce: 0
+  slowDuration: 0
+  slowAmount: 0.5
+  canCritical: 0
+  criticalChance: 0.1
+  criticalMultiplier: 2
+  skillName: "\uAE30\uBCF8 \uACF5\uACA9"
+  castSound: {fileID: 0}
+  hitSound: {fileID: 0}

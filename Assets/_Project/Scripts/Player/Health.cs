@@ -27,6 +27,7 @@ namespace RpgPractice
 
         public void TakeDamage(float damage)
         {
+            // 데미지타입
             UIManager.instance.CreatePopUp(transform.position, damage.ToString(), Color.cyan, 1f);
             currentHealth -= damage;
             PublishHealthPercentage();

@@ -1967,7 +1967,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.20000005, y: 0.76, z: -15}
+  m_LocalPosition: {x: 0.20000005, y: 0.76, z: -8.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7593,7 +7593,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8876175105051784628, guid: 774614b99ce37df459750b97f5080b59, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8316,6 +8316,66 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1741831495}
   m_CullTransparentMesh: 1
+--- !u!1 &1754123574
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1754123575}
+  - component: {fileID: 1754123576}
+  m_Layer: 0
+  m_Name: Event
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1754123575
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754123574}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9149905494505769601}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1754123576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754123574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13b2f1847fbb2664cb62d3ac8dce74e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eventChannel: {fileID: 11400000, guid: 4d8e5c1da69f1dc48ad3e37aa6afb7a6, type: 2}
+  unityEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 9149905494505769602}
+        m_TargetAssemblyTypeName: RpgPractice.PlayerController, Assembly-CSharp
+        m_MethodName: OnAttack
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &1778941159
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9473,7 +9533,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2070925441746177912, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -15
+      value: -8.6
       objectReference: {fileID: 0}
     - target: {fileID: 2070925441746177912, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: m_LocalRotation.w
@@ -9509,7 +9569,7 @@ PrefabInstance:
       objectReference: {fileID: 330709691}
     - target: {fileID: 2070925442191277752, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: CameraDistance
-      value: 15
+      value: 8.6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -10414,6 +10474,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4165669047525119143, guid: 016710874dfb1fa45b45778d86759d8d, type: 3}
+      propertyPath: m_WarningMessage
+      value: "\nBinding warning: Some generic clip(s) animate transforms that are
+        already bound by a Humanoid avatar. These transforms can only be changed
+        by Humanoid clips.\n\tTransform 'Character1_RightHand'\n\tTransform 'Character1_RightHand'\n\tFrom
+        animation clip 'BlockingClone'"
+      objectReference: {fileID: 0}
     - target: {fileID: 4187252443789843901, guid: 016710874dfb1fa45b45778d86759d8d, type: 3}
       propertyPath: cineVCam
       value: 
@@ -10441,7 +10508,10 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 8426049945304366927, guid: 016710874dfb1fa45b45778d86759d8d, type: 3}
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 7932749825855565367, guid: 016710874dfb1fa45b45778d86759d8d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1754123575}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5032747163860038858, guid: 016710874dfb1fa45b45778d86759d8d, type: 3}
       insertIndex: -1
@@ -10488,6 +10558,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78d34d22ead5415b9bcddb9902f7aff7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onSkillEventChannel: {fileID: 11400000, guid: 4d8e5c1da69f1dc48ad3e37aa6afb7a6, type: 2}
   inputReader: {fileID: 11400000, guid: f2d9050567048a74283ef732fce91f75, type: 2}
   skillFloatEventChannels:
   - {fileID: 11400000, guid: e7777690ccb649844a2684b57bc26548, type: 2}
@@ -10499,6 +10570,22 @@ MonoBehaviour:
   sword: {fileID: 11400000, guid: 72022a75f03877949b30c0b2333d60c5, type: 2}
   bow: {fileID: 0}
   staff: {fileID: 0}
+--- !u!4 &9149905494505769601 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7932749825855565367, guid: 016710874dfb1fa45b45778d86759d8d, type: 3}
+  m_PrefabInstance: {fileID: 9149905494505769582}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &9149905494505769602 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5703458227899586772, guid: 016710874dfb1fa45b45778d86759d8d, type: 3}
+  m_PrefabInstance: {fileID: 9149905494505769582}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418389103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51622a1a9a9d4a20a223b269ea296bb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

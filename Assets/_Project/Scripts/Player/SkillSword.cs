@@ -9,9 +9,18 @@ namespace RpgPractice
         [SerializeField] private ProjectileData[] skills;
 
 
-        public void LeftClick(Transform transform)
+        public void LeftClick(Transform transform,bool combo)
         {
-            UseSkill(SkillType.LeftClick, transform.position, transform.forward, transform.parent.gameObject);
+            if (combo)
+            {
+                UseSkill(SkillType.Combo, transform.position, transform.forward, transform.parent.gameObject);
+            }
+            else
+            {
+                UseSkill(SkillType.LeftClick, transform.position, transform.forward, transform.parent.gameObject);
+            }
+
+                
             
         }
 
@@ -24,6 +33,8 @@ namespace RpgPractice
         {
             Debug.Log("skill1");
             //막기
+            
+            
         }
 
         public void Skill2(Transform transform)
@@ -55,6 +66,13 @@ namespace RpgPractice
             if (!skills[idx]) return 1;
             return skills[idx].manaCost;
         }
+        
+        
+
+        public void SetDamage(int idx, float damage)
+        {
+            skills[idx].damage = damage;
+        }
 
         private void UseSkill(SkillType skillType, Vector3 position, Vector3 direction, GameObject shooter)
         {
@@ -67,6 +85,8 @@ namespace RpgPractice
                 proj.GetComponentInChildren<Projectile>().Init(shooter,position, direction, skillData);
             }
         }
+        
+        
         
         
     }

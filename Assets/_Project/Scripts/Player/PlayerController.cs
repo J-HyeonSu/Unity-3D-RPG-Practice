@@ -12,7 +12,6 @@ namespace RpgPractice
     {
         // 현재 버그
         // 좌클콤보공격2 데미지 어떻게 할지 고민
-        // 공격맞자마자 이펙트 사라짐
         
         [Header("References")] 
         [SerializeField] private Animator animator;

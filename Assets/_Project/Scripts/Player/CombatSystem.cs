@@ -8,7 +8,7 @@ namespace RpgPractice
 {
     public enum SkillType
     {
-        LeftClick, RightClick, Skill1, Skill2, Skill3, Skill4
+        LeftClick, RightClick, Skill1, Skill2, Skill3, Skill4, Combo
     }
     
     // 플레이어의 공격, 스킬 담당
@@ -31,13 +31,15 @@ namespace RpgPractice
         private Mana playerMana;
         private Health playerHealth;
 
+        private const int MAX_SKILLSIZE = 6;
+
         private void Start()
         {
             playerHealth = GetComponentInParent<Health>();
             playerMana = GetComponentInParent<Mana>();
             currentWeapon = sword;
-            onSkills = new bool[6];
-            timers = new CountdownTimer[6];
+            onSkills = new bool[MAX_SKILLSIZE];
+            timers = new CountdownTimer[MAX_SKILLSIZE];
             
             
             for (int i = 0; i < timers.Length; i++)
@@ -105,7 +107,9 @@ namespace RpgPractice
 
             for(int i=0; i<onSkills.Length; i++)
             {
-                if (onSkills[i] && CanUseSkill(i))
+                if (!onSkills[i]) continue; // 스킬 동시시전 x
+                var canUse = CanUseSkill(i);
+                if(canUse==1)
                 {
                     onSkillEventChannel?.Invoke(i);
                     timers[i].Start();
@@ -113,27 +117,36 @@ namespace RpgPractice
                     isCasting = true;
                     break;
                 }
+                if (i == 0 && canUse == 0)
+                {
+                    //콤보로직 이동, 좌클이고 쿨타임일때
+                    onSkillEventChannel?.Invoke(i);
+                    currentAttack = SkillType.Combo;
+                    isCasting = true;
+                    break;
+                }
             }
             
         }
 
-        bool CanUseSkill(int skillIndex)
+        int CanUseSkill(int skillIndex)
         {
-            if (timers[skillIndex].IsRunning) return false;
+            // return 타입 -1 = 사망, 0 = 쿨타임, 1성공, 2마나 부족
+            if (timers[skillIndex].IsRunning) return 0;
             if (playerHealth)
             {
-                if (playerHealth.IsDead) return false;
+                if (playerHealth.IsDead) return -1;
             }
 
             if (playerMana)
             {
                 float requiredMana = currentWeapon.GetManaCost(skillIndex);
-                if (!playerMana.UseMana(requiredMana)) return false;
+                if (!playerMana.UseMana(requiredMana)) return 2;
             }
 
             
 
-            return true;
+            return 1;
         }
         
 
@@ -141,12 +154,13 @@ namespace RpgPractice
         {
             switch (currentAttack)
             {
-                case SkillType.LeftClick: currentWeapon.LeftClick(transform); break;
+                case SkillType.LeftClick: currentWeapon.LeftClick(transform, false); break;
                 case SkillType.RightClick: currentWeapon.RightClick(transform); break;
                 case SkillType.Skill1: currentWeapon.Skill1(transform); break;
                 case SkillType.Skill2: currentWeapon.Skill2(transform); break;
                 case SkillType.Skill3: currentWeapon.Skill3(transform); break;
                 case SkillType.Skill4: currentWeapon.Skill4(transform); break;
+                case SkillType.Combo: currentWeapon.LeftClick(transform, true); break;
             }
             isCasting = false;
             

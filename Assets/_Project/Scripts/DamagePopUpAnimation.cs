@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace RpgPractice
 {
+    // 데미지 팝업의 애니메이션효과 처리
     public class DamagePopUpAnimation : MonoBehaviour
     {
         public AnimationCurve opacityCurve;
