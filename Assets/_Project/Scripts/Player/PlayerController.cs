@@ -10,8 +10,6 @@ namespace RpgPractice
 {
     public class PlayerController : MonoBehaviour
     {
-        // 현재 버그
-        // 좌클콤보공격2 데미지 어떻게 할지 고민
         
         [Header("References")] 
         [SerializeField] private Animator animator;
@@ -40,8 +38,8 @@ namespace RpgPractice
         private Transform mainCam;
         
         private const float ZeroF = 0f;
-        
-        
+
+        [SerializeField] private IntEventChannel RemoveStatusEventChannel;
         
         //movement
         private Vector3 movement;
@@ -147,7 +145,6 @@ namespace RpgPractice
         {
             stateMachine.Update();
             HandleTimers();
-
         }
         
         void HandleTimers()
@@ -196,16 +193,22 @@ namespace RpgPractice
         }
 
 
+        
         public void OnAttack(int value)
         {
             attackNum = value;
-            
             isAttack = attackNum >= 0;
+            RemoveEffect((int)StatusEffect.GUARD);
             if (isAttack)
             {
                 // AttackState 상태일때 들어오는 이벤트 처리
                 ChangeAttackState?.Invoke(value);
             }
+        }
+
+        public void RemoveEffect(int effectNum)
+        {
+            RemoveStatusEventChannel?.Invoke(effectNum);
         }
         
         

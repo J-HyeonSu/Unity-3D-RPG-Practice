@@ -14,6 +14,11 @@ namespace RpgPractice
             throw new System.NotImplementedException();
         }
 
+        public void Skill1(Transform transform, Health health)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void Skill1(Transform transform)
         {
             throw new System.NotImplementedException();
@@ -30,6 +35,36 @@ namespace RpgPractice
         }
 
         public void Skill4(Transform transform)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void LeftClick(SkillData skillData)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void RightClick(SkillData skillData)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Skill1(SkillData skillData)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Skill2(SkillData skillData)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Skill3(SkillData skillData)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Skill4(SkillData skillData)
         {
             throw new System.NotImplementedException();
         }

@@ -2,14 +2,23 @@
 
 namespace RpgPractice
 {
+    public class SkillData
+    {
+        public Transform PlayerTransform;
+        public Health PlayerHealth;
+        public Mana PlayerMana;
+        public bool IsCombo;
+
+        public Transform TargetTransform;
+    }
     public interface IWeaponBehaviour
     {
-        public void LeftClick(Transform transform,bool combo);
-        public void RightClick(Transform transform);
-        public void Skill1(Transform transform);
-        public void Skill2(Transform transform);
-        public void Skill3(Transform transform);
-        public void Skill4(Transform transform);
+        public void LeftClick(SkillData skillData);
+        public void RightClick(SkillData skillData);
+        public void Skill1(SkillData skillData);
+        public void Skill2(SkillData skillData);
+        public void Skill3(SkillData skillData);
+        public void Skill4(SkillData skillData);
         public float GetCooldown(int idx);
         public float GetManaCost(int idx);
     }

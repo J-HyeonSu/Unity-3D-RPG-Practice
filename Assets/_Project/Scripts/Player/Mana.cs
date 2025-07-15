@@ -9,7 +9,7 @@ namespace RpgPractice
 
 
         [SerializeField] private float maxMana = 100;
-        [SerializeField] private float manaRegenRate = 2;
+        [SerializeField] private float manaRegenRate = 1;
         
         [SerializeField] private FloatEventChannel playerManaChannel;
         

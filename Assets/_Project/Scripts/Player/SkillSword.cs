@@ -9,47 +9,43 @@ namespace RpgPractice
         [SerializeField] private ProjectileData[] skills;
 
 
-        public void LeftClick(Transform transform,bool combo)
+        public void LeftClick(SkillData skillData)
         {
-            if (combo)
+            if (skillData.IsCombo)
             {
-                UseSkill(SkillType.Combo, transform.position, transform.forward, transform.parent.gameObject);
+                UseSkill(SkillType.Combo, skillData.PlayerTransform.position, skillData.PlayerTransform.forward, skillData.PlayerTransform.parent.gameObject);
             }
             else
             {
-                UseSkill(SkillType.LeftClick, transform.position, transform.forward, transform.parent.gameObject);
+                UseSkill(SkillType.LeftClick, skillData.PlayerTransform.position, skillData.PlayerTransform.forward, skillData.PlayerTransform.parent.gameObject);
             }
-
-                
-            
         }
 
-        public void RightClick(Transform transform)
+        public void RightClick(SkillData skillData)
         {
-            UseSkill(SkillType.RightClick, transform.position, transform.forward, transform.parent.gameObject);
+            UseSkill(SkillType.RightClick, skillData.PlayerTransform.position, skillData.PlayerTransform.forward, skillData.PlayerTransform.parent.gameObject);
         }
 
-        public void Skill1(Transform transform)
+        public void Skill1(SkillData skillData)
         {
-            Debug.Log("skill1");
-            //막기
-            
-            
+            //막기 //
+            skillData.PlayerHealth.AddStatus((int)StatusEffect.GUARD);
         }
 
-        public void Skill2(Transform transform)
+        public void Skill2(SkillData skillData)
         {
             Debug.Log("skill2");
             //돌진
         }
 
-        public void Skill3(Transform transform)
+        public void Skill3(SkillData skillData)
         {
             Debug.Log("skill3");
             //무력
+            
         }
 
-        public void Skill4(Transform transform)
+        public void Skill4(SkillData skillData)
         {
             Debug.Log("skill4");
             //버프

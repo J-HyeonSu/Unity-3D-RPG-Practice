@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 1867602252270566321, guid: 63150cf9acfb25144b8bf7c2c7a0b253, type: 3}
   speed: 30
-  damage: 1
+  damage: 8
   length: 5
   lifeTime: 10
   piercing: 0
   maxHits: 1
   manaCost: 0
-  cooldown: 0
-  manaRestore: 0
+  cooldown: 0.5
+  manaRestore: 10
   knockbackForce: 0
   slowDuration: 0
   slowAmount: 0.5

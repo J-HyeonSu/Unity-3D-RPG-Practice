@@ -13,6 +13,7 @@ namespace RpgPractice
         public override void OnEnter()
         {
             animator.CrossFade(LocomotionHash, crossFadeDuration);
+            player.RemoveEffect((int)StatusEffect.GUARD);
             // if (player.weaponManager.CurrentWeapon == WeaponType.Unarmed)
             // {
             //     animator.CrossFade(LocomotionHash, crossFadeDuration);

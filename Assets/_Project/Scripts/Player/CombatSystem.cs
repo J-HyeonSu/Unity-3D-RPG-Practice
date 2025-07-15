@@ -31,12 +31,19 @@ namespace RpgPractice
         private Mana playerMana;
         private Health playerHealth;
 
+        private SkillData skillData;
+
         private const int MAX_SKILLSIZE = 6;
 
         private void Start()
         {
-            playerHealth = GetComponentInParent<Health>();
-            playerMana = GetComponentInParent<Mana>();
+            skillData = new SkillData
+            {
+                PlayerTransform = transform,
+                PlayerHealth = GetComponentInParent<Health>(),
+                PlayerMana = GetComponentInParent<Mana>()
+            };
+
             currentWeapon = sword;
             onSkills = new bool[MAX_SKILLSIZE];
             timers = new CountdownTimer[MAX_SKILLSIZE];
@@ -114,6 +121,7 @@ namespace RpgPractice
                     onSkillEventChannel?.Invoke(i);
                     timers[i].Start();
                     currentAttack = (SkillType)i;
+                    skillData.IsCombo = false;
                     isCasting = true;
                     break;
                 }
@@ -121,6 +129,7 @@ namespace RpgPractice
                 {
                     //콤보로직 이동, 좌클이고 쿨타임일때
                     onSkillEventChannel?.Invoke(i);
+                    skillData.IsCombo = true;
                     currentAttack = SkillType.Combo;
                     isCasting = true;
                     break;
@@ -144,8 +153,6 @@ namespace RpgPractice
                 if (!playerMana.UseMana(requiredMana)) return 2;
             }
 
-            
-
             return 1;
         }
         
@@ -154,13 +161,13 @@ namespace RpgPractice
         {
             switch (currentAttack)
             {
-                case SkillType.LeftClick: currentWeapon.LeftClick(transform, false); break;
-                case SkillType.RightClick: currentWeapon.RightClick(transform); break;
-                case SkillType.Skill1: currentWeapon.Skill1(transform); break;
-                case SkillType.Skill2: currentWeapon.Skill2(transform); break;
-                case SkillType.Skill3: currentWeapon.Skill3(transform); break;
-                case SkillType.Skill4: currentWeapon.Skill4(transform); break;
-                case SkillType.Combo: currentWeapon.LeftClick(transform, true); break;
+                case SkillType.LeftClick: currentWeapon.LeftClick(skillData); break;
+                case SkillType.RightClick: currentWeapon.RightClick(skillData); break;
+                case SkillType.Skill1: currentWeapon.Skill1(skillData); break;
+                case SkillType.Skill2: currentWeapon.Skill2(skillData); break;
+                case SkillType.Skill3: currentWeapon.Skill3(skillData); break;
+                case SkillType.Skill4: currentWeapon.Skill4(skillData); break;
+                case SkillType.Combo: currentWeapon.LeftClick(skillData); break;
             }
             isCasting = false;
             
