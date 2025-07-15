@@ -27,6 +27,7 @@ namespace RpgPractice
         [Header("소모품 효과")] 
         public int healAmount = 0;
         public int manaRestoreAmount = 0;
+        public int exp = 0;
 
         public Color GetRarityColor()
         {

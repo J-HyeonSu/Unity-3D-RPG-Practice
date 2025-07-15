@@ -7,7 +7,8 @@ namespace RpgPractice
         Armor,
         Consumable,
         Material,
-        Quest
+        Quest,
+        Instant
     }
 
     public enum ItemRarity

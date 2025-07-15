@@ -77,7 +77,6 @@ namespace RpgPractice
         // 아이템 호버 시 아이템 정보 표시
         public void OnPointerEnter(PointerEventData eventData)
         {
-            Debug.Log("PointerEnter");
             //호버유지가 안되는 버그 창 깜빡거림
             if (currentItem != null && parentInventoryUI != null)
             {

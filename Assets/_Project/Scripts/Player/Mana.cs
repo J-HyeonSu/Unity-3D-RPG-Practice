@@ -73,5 +73,13 @@ namespace RpgPractice
                 playerManaChannel.Invoke(currentMana/maxMana);
             }
         }
+
+        public void SetMaxMana(int amount)
+        {
+            var manaRatio = currentMana / maxMana;
+            maxMana = amount;
+            currentMana = maxMana * manaRatio;
+            PublishManaPercentage();
+        }
     }
 }

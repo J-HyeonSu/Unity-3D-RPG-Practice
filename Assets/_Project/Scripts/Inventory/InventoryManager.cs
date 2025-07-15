@@ -35,6 +35,17 @@ namespace RpgPractice
         {
             if (newItem?.data == null) return false;
             
+            // 바로 사용되는 아이템
+            if (newItem.data.itemType == ItemType.Instant)
+            {
+                // 경험치
+                if (newItem.data.itemName == "경험치")
+                {
+                    PlayerStats.Instance.GainExperience(newItem.data.exp);
+                }
+                return true;
+            }
+            
             // 스택 가능한 아이템 찾기
             if (newItem.data.maxStackSize > 1)
             {

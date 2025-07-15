@@ -156,5 +156,14 @@ namespace RpgPractice
                 playerHealthChannel.Invoke(currentHealth/maxHealth);
             }
         }
+
+        public void SetMaxHealth(int amount)
+        {
+            float healthRatio = currentHealth / maxHealth;
+            maxHealth = amount;
+            currentHealth = maxHealth * healthRatio;
+            
+            PublishHealthPercentage();
+        }
     }
 }
