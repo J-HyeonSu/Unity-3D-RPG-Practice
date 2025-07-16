@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5898395999383172619}
   - component: {fileID: 1009106179029909291}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Decal Projector Bg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51,7 +51,7 @@ MonoBehaviour:
   m_EndAngleFade: 180
   m_UVScale: {x: 1, y: 1}
   m_UVBias: {x: 0, y: 0}
-  m_DecalLayerMask: 1
+  m_DecalLayerMask: 128
   m_ScaleMode: 0
   m_Offset: {x: 0, y: 0, z: 2}
   m_Size: {x: 1, y: 1, z: 10}
@@ -66,7 +66,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7448161279859713103}
   - component: {fileID: 66100394515656903}
-  m_Layer: 8
+  m_Layer: 7
   m_Name: BossAttackTelegraph
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -81,7 +81,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2571002917359089560}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.00019624176, y: 0, z: 6.2936277}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -121,7 +121,7 @@ GameObject:
   - component: {fileID: 2482849719790823976}
   - component: {fileID: 6097793127600059126}
   - component: {fileID: 4669741726509952320}
-  m_Layer: 8
+  m_Layer: 7
   m_Name: Particle System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4953,7 +4953,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3915434602308255043}
   - component: {fileID: 7934370936544778110}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Decal Projector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4994,7 +4994,7 @@ MonoBehaviour:
   m_EndAngleFade: 180
   m_UVScale: {x: 1, y: 1}
   m_UVBias: {x: 0, y: 0}
-  m_DecalLayerMask: 1
+  m_DecalLayerMask: 128
   m_ScaleMode: 0
   m_Offset: {x: 0, y: 0, z: 2}
   m_Size: {x: 1, y: 1, z: 10}

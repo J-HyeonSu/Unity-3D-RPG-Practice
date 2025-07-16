@@ -157,6 +157,11 @@ namespace RpgPractice
             }
         }
 
+        public float GetPercentage()
+        {
+            return currentHealth / maxHealth;
+        }
+
         public void SetMaxHealth(int amount)
         {
             float healthRatio = currentHealth / maxHealth;

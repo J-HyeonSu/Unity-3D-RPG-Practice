@@ -31,10 +31,10 @@ namespace RpgPractice
         {
             if (!enemy.attackTimer.IsRunning)
             {
-                LookAtPlayer();
                 animator.Play(AttackHash, 0, 0f);
                 enemy.Attack();
             }
+            LookAtPlayer();
         }
         
         private void LookAtPlayer()

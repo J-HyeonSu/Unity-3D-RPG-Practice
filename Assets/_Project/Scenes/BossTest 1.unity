@@ -6823,7 +6823,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damagePopupPrefab: {fileID: 417055353874110216, guid: 6fec19934260fb341b3966c85b49614c, type: 3}
-  levelText: {fileID: 0}
 --- !u!4 &1588810919
 Transform:
   m_ObjectHideFlags: 0
@@ -6907,7 +6906,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  healthRegenRate: 1
   playerHealthChannel: {fileID: 0}
 --- !u!114 &1641118507
 MonoBehaviour:
@@ -6929,8 +6927,6 @@ MonoBehaviour:
   timeBetweenAttacks: 4
   attackDamage: 10
   destroyTime: 10
-  dropTable: {fileID: 0}
-  dropItemsOnDeath: 1
   bossAttackDatas:
   - {fileID: 11400000, guid: 9cfcf0786359f0a4f83c1bf7fb983f26, type: 2}
   - {fileID: 11400000, guid: b33d725d5cbacd344a5176db78bc78ac, type: 2}

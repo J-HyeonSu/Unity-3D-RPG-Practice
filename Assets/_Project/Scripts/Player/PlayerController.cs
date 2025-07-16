@@ -216,31 +216,6 @@ namespace RpgPractice
         {
             //사망 처리
         }
-
-        
-
-        public void Hit()
-        {
-            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-            
-            // if (stateInfo.IsName("Attack1"))
-            // {
-            //     skillSystem.UseSkill(SkillType.LeftClick, transform.position, transform.forward,transform.parent.gameObject ,attackPower);
-            //     attackNum = 1;
-            // }
-            // else if (stateInfo.IsName("Attack2"))
-            // {
-            //     skillSystem.UseSkill(SkillType.Skill1, transform.position, transform.forward,transform.parent.gameObject, attackPower);
-            //     attackNum = 2;
-            // }
-            // else if (stateInfo.IsName("SubAttack"))
-            // {
-            //     skillSystem.UseSkill(SkillType.RightClick, transform.position, transform.forward, transform.parent.gameObject,attackPower);
-            //     attackNum = 3;
-            // }
-            
-        }
-        
         
         public void FootL()
         {
