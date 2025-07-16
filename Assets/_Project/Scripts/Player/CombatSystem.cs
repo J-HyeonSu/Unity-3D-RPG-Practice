@@ -43,6 +43,8 @@ namespace RpgPractice
                 PlayerHealth = GetComponentInParent<Health>(),
                 PlayerMana = GetComponentInParent<Mana>()
             };
+            
+            
 
             currentWeapon = sword;
             onSkills = new bool[MAX_SKILLSIZE];
@@ -65,7 +67,6 @@ namespace RpgPractice
             if (skillFloatEventChannels[skillIndex])
             {
                 skillFloatEventChannels[skillIndex]?.Invoke(0);
-                
             }
         }
 
@@ -180,7 +181,10 @@ namespace RpgPractice
             isCasting = false;
         }
 
-        
+        public void NewTarget(GameObject target)
+        {
+            skillData.Target = target;
+        }
         
         
         private void OnEnable()

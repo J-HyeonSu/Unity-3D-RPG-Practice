@@ -44,6 +44,9 @@ namespace RpgPractice
                 case 2:
                     animator.CrossFade(BlockHash, crossFadeDuration);
                     break;
+                case 3:
+                    animator.CrossFade(RushAttackHash, crossFadeDuration);
+                    break;
             }
             
         }

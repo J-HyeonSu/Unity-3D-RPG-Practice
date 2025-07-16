@@ -51,11 +51,7 @@ namespace RpgPractice
         {
             bleedTimer.Tick(Time.deltaTime);
             poisonTimer.Tick(Time.deltaTime);
-
-            foreach (var statusEffect in activeEffect)
-            {
-                Debug.Log(statusEffect);
-            }
+            
         }
 
         private void FixedUpdate()
@@ -63,6 +59,7 @@ namespace RpgPractice
             
             if (healthRegenTimer > 1f)
             {
+                if (IsDead) return;
                 RestoreHealth(healthRegenRate);
                 if (activeEffect.Contains(StatusEffect.BLEED))
                 {
@@ -142,8 +139,14 @@ namespace RpgPractice
                         break;
                 }    
             }
+
+            Color color = Color.magenta;
+            if (transform.gameObject.CompareTag("Enemy"))
+            {
+                color = Color.cyan;
+            }
             
-            UIManager.instance.CreatePopUp(transform.position, finalDamage.ToString(), Color.cyan, 1f);
+            UIManager.instance.CreatePopUp(transform.position, finalDamage.ToString(), color, 1f);
             currentHealth = Mathf.Clamp(currentHealth - finalDamage, 0, maxHealth);
             PublishHealthPercentage();
         }

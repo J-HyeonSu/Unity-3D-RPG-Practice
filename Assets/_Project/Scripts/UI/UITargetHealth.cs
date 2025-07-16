@@ -45,6 +45,7 @@ namespace RpgPractice
                 if (currentHealth.IsDead)
                 {
                     Hide();
+                    return;
                 }
                 Vector3 playerPos = new Vector3(playerTransform.position.x, 0, playerTransform.position.z);
                 Vector3 targetPos = new Vector3(currentTarget.transform.position.x, 0, currentTarget.transform.position.z);

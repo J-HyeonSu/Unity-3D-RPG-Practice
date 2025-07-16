@@ -1,24 +1,20 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace RpgPractice
 {
+    
     [CreateAssetMenu]
     public class SkillSword : ScriptableObject, IWeaponBehaviour
     {
         [SerializeField] private ProjectileData[] skills;
-
-
+        
+        
         public void LeftClick(SkillData skillData)
         {
-            if (skillData.IsCombo)
-            {
-                UseSkill(SkillType.Combo, skillData.PlayerTransform.position, skillData.PlayerTransform.forward, skillData.PlayerTransform.parent.gameObject);
-            }
-            else
-            {
-                UseSkill(SkillType.LeftClick, skillData.PlayerTransform.position, skillData.PlayerTransform.forward, skillData.PlayerTransform.parent.gameObject);
-            }
+            UseSkill(skillData.IsCombo ? SkillType.Combo : SkillType.LeftClick, skillData.PlayerTransform.position,
+                skillData.PlayerTransform.forward, skillData.PlayerTransform.parent.gameObject);
         }
 
         public void RightClick(SkillData skillData)
@@ -36,7 +32,15 @@ namespace RpgPractice
         {
             Debug.Log("skill2");
             //돌진
+            var pc = skillData.PlayerTransform.GetComponent<PlayerController>();
+            if (pc)
+            {
+                //돌진
+                pc.RushAttack(skillData, 3f, 30f, skills[(int)SkillType.Skill2].damage);
+            }
+
         }
+        
 
         public void Skill3(SkillData skillData)
         {

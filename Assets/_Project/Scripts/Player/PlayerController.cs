@@ -1,4 +1,5 @@
 ﻿
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -225,6 +226,31 @@ namespace RpgPractice
         public void FootR()
         {
             //Debug.Log("오른발 착지!");
+        }
+
+        public void RushAttack(SkillData data, float endDistance, float speed, float damage)
+        {
+            
+            StartCoroutine(RushAttackCoroutine(data.Target,transform.position, data.Target.transform.position, endDistance, speed, damage));
+        }
+
+        IEnumerator RushAttackCoroutine(GameObject target, Vector3 startPos, Vector3 endPos, float endDistance, float speed, float damage)
+        {
+            startPos.y = endPos.y;
+            while (Vector3.Distance(transform.position, endPos) >= endDistance)
+            {
+                var direction = (endPos - startPos).normalized;
+
+                transform.parent.position += direction * (speed * Time.deltaTime);
+
+                Vector3 currentPos = transform.parent.position;
+                currentPos.y = startPos.y;
+                transform.parent.position = currentPos;
+                
+                yield return null;
+            }
+            // 돌진하고 데미지관련
+            target.GetComponent<Health>().TakeDamage(damage);
         }
 
 

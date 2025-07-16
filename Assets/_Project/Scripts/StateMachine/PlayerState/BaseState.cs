@@ -14,6 +14,7 @@ namespace RpgPractice
         protected static readonly int LeftAttack2Hash = Animator.StringToHash("LeftAttack2");
         protected static readonly int RightAttackHash = Animator.StringToHash("RightAttack");
         protected static readonly int BlockHash = Animator.StringToHash("Block");
+        protected static readonly int RushAttackHash = Animator.StringToHash("RushAttack");
         protected static readonly int DeadHash = Animator.StringToHash("Die");
         protected static readonly int LocomotionSwordHash = Animator.StringToHash("2Hand-Sword-WalkRun-Blend");
         

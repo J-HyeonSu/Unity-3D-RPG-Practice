@@ -6521,7 +6521,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.99289924, z: 0, w: -0.11895883}
-  m_LocalPosition: {x: 0.84021354, y: 2.01, z: 16.832968}
+  m_LocalPosition: {x: 1.5250589, y: 2.01, z: 19.65}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -48969,6 +48969,7 @@ GameObject:
   - component: {fileID: 1754123575}
   - component: {fileID: 1754123576}
   - component: {fileID: 1754123577}
+  - component: {fileID: 1754123578}
   m_Layer: 0
   m_Name: Event
   m_TagString: Untagged
@@ -49038,6 +49039,34 @@ MonoBehaviour:
       - m_Target: {fileID: 9149905494505769585}
         m_TargetAssemblyTypeName: RpgPractice.Health, Assembly-CSharp
         m_MethodName: RemoveStatus
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &1754123578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754123574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d72b2e1a4e0b4360b5046202e32a38f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eventChannel: {fileID: 11400000, guid: 90ebf703b76f06e4cb303da47d3eaeb4, type: 2}
+  unityEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 9149905494505769600}
+        m_TargetAssemblyTypeName: RpgPractice.CombatSystem, Assembly-CSharp
+        m_MethodName: NewTarget
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -57599,7 +57628,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2070925441746177912, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.84021354
+      value: 1.5250589
       objectReference: {fileID: 0}
     - target: {fileID: 2070925441746177912, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: m_LocalPosition.y
@@ -57607,7 +57636,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2070925441746177912, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 16.832968
+      value: 19.65
       objectReference: {fileID: 0}
     - target: {fileID: 2070925441746177912, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: m_LocalRotation.w
@@ -57643,7 +57672,7 @@ PrefabInstance:
       objectReference: {fileID: 330709691}
     - target: {fileID: 2070925442191277752, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: CameraDistance
-      value: 3
+      value: 7.8
       objectReference: {fileID: 0}
     - target: {fileID: 2070925442191277752, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: ShoulderOffset.x
