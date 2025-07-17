@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd61ea5bd84447fca800dd2cf7f9db85, type: 3}
+  m_Name: Shield
+  m_EditorClassIdentifier: 
+  itemName: "\uBC29\uD328"
+  description: "\uCCB4\uB825\uC744 \uC62C\uB824\uC900\uB2E4"
+  icon: {fileID: -604943165, guid: 847f3e08157367e458aec63415b2d664, type: 3}
+  prefab: {fileID: 0}
+  itemType: 1
+  rarity: 2
+  maxStackSize: 1
+  sellPrice: 100
+  attackPower: 0
+  defense: 0
+  healthBonus: 10
+  manaBonus: 0
+  healAmount: 0
+  manaRestoreAmount: 0
+  exp: 0

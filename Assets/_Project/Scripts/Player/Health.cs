@@ -149,6 +149,7 @@ namespace RpgPractice
             UIManager.instance.CreatePopUp(transform.position, finalDamage.ToString(), color, 1f);
             currentHealth = Mathf.Clamp(currentHealth - finalDamage, 0, maxHealth);
             PublishHealthPercentage();
+            
         }
         
 

@@ -24,6 +24,13 @@ namespace RpgPractice
         [SerializeField] private Image itemIconImage;
         [SerializeField] private TextMeshProUGUI itemStatsText;
 
+        [Header("장착 아이템 패널")]
+        [SerializeField] private ItemSlotUI weaponItemSlot;
+        [SerializeField] private ItemSlotUI armorItemSlot;
+        [SerializeField] private ItemSlotUI ring1ItemSlot;
+        [SerializeField] private ItemSlotUI ring2ItemSlot;
+        
+
         private List<ItemSlotUI> itemSlots = new List<ItemSlotUI>();
         private bool isInventoryOpen = false;
 
@@ -125,12 +132,22 @@ namespace RpgPractice
             {
                 slot.ClearSlot();
             }
+            weaponItemSlot.ClearSlot();
+            armorItemSlot.ClearSlot();
+            ring1ItemSlot.ClearSlot();
+            ring2ItemSlot.ClearSlot();
 
             //아이템 배치
             for (int i = 0; i < items.Count && i < itemSlots.Count; i++)
             {
                 itemSlots[i].SetItem(items[i]);
             }
+            
+            weaponItemSlot.SetItem(InventoryManager.Instance.equippedWeapon);
+            armorItemSlot.SetItem(InventoryManager.Instance.equippedArmor);
+            ring1ItemSlot.SetItem(InventoryManager.Instance.equippedRing1);
+            ring2ItemSlot.SetItem(InventoryManager.Instance.equippedRing2);
+            
         }
 
         void SortInventory()
@@ -152,7 +169,6 @@ namespace RpgPractice
             // 아이템 정보 설정
             itemNameText.text = item.data.itemName;
             itemNameText.color = item.data.GetRarityColor();
-            Debug.Log(item.data.itemName);
 
             itemDescriptionText.text = item.data.description;
             itemIconImage.sprite = item.data.icon;
@@ -190,19 +206,18 @@ namespace RpgPractice
             
             // 위치 조절 (마우스근처 표시)
             RectTransform rectTransform = itemInfoPanel.GetComponent<RectTransform>();
-
             
-            // position.x = Mathf.Clamp(position.x, -540, 540);
-            // position.y = Mathf.Clamp(position.y, -140, 140);
+            
             
             rectTransform.position = position;
+
+            rectTransform.anchoredPosition =
+                new Vector2(rectTransform.anchoredPosition.x < 960 ? rectTransform.anchoredPosition.x+200 : rectTransform.anchoredPosition.x-200, rectTransform.anchoredPosition.y);
             
             var clampX = Mathf.Clamp(rectTransform.anchoredPosition.x, -540, 540);
             var clampY = Mathf.Clamp(rectTransform.anchoredPosition.y, -140, 140);
 
             rectTransform.anchoredPosition = new Vector2(clampX, clampY);
-            Debug.Log(position);
-            Debug.Log(rectTransform.anchoredPosition);
         }
 
         public void HideItemInfo()
@@ -234,19 +249,22 @@ namespace RpgPractice
                     break;
                 case ItemType.Armor:
                 case ItemType.Weapon:
-                    // 장비시스템 구현시 추가
+                case ItemType.Accessory:
+                    InventoryManager.Instance.EquipItem(item);
                     break;
                 default:
                     Debug.Log($"{item.data.itemName}은(는) 사용할 수 없습니다.");
                     break;
             }
         }
+        
+        
 
         void UseConsumableItem(Item item)
         {
             // 소모 아이템 사용시 
             // 체력, 마나 적용
-
+            
             InventoryManager.Instance.RemoveItem(item, 1);
         }
         

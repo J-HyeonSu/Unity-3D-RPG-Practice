@@ -13,10 +13,19 @@ namespace RpgPractice
         [SerializeField] private int maxSlots = 30;
 
         private List<Item> items = new List<Item>();
+        public Item equippedWeapon;
+        public Item equippedArmor;
+        public Item equippedRing1;
+        public Item equippedRing2;
+        
+        
 
         public Action<Item> OnItemAdded;
         public Action<Item> OnItemRemoved;
         public Action OnInventoryChanged;
+
+        
+        
 
         private void Awake()
         {
@@ -39,7 +48,7 @@ namespace RpgPractice
             if (newItem.data.itemType == ItemType.Instant)
             {
                 // 경험치
-                if (newItem.data.itemName == "경험치")
+                if (newItem.data.exp > 0)
                 {
                     PlayerStats.Instance.GainExperience(newItem.data.exp);
                 }
@@ -94,6 +103,51 @@ namespace RpgPractice
             
             OnInventoryChanged?.Invoke();
             return true;
+        }
+
+        // 아이템 장착
+        public void EquipItem(Item item)
+        {
+
+            Item previousEquipment = null;
+            
+            switch (item.data.itemType)
+            {
+                case ItemType.Weapon:
+                    previousEquipment = equippedWeapon;
+                    equippedWeapon = item;
+                    break;
+                case ItemType.Armor:
+                    previousEquipment = equippedArmor;
+                    equippedArmor = item;
+                    break;
+                case ItemType.Accessory:
+                    Debug.Log($"악세사리 장착 시도: {item.data.itemName}");
+                    if (!equippedRing1.data)
+                    {
+                        equippedRing1 = item;
+                    }
+                    else if (!equippedRing2.data)
+                    {
+                        equippedRing2 = item;
+                    }
+                    else
+                    {
+                        Debug.Log("elsesess");
+                        previousEquipment = equippedRing1;
+                        equippedRing1 = item;
+                    }
+                    break;
+            }
+
+            if (previousEquipment != null)
+            {
+                AddItem(previousEquipment);
+            }
+
+            RemoveItem(item);
+            
+            OnInventoryChanged?.Invoke();
         }
         
         // 특정 아이템 개수 확인

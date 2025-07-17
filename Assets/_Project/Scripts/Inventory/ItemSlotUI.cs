@@ -77,7 +77,6 @@ namespace RpgPractice
         // 아이템 호버 시 아이템 정보 표시
         public void OnPointerEnter(PointerEventData eventData)
         {
-            //호버유지가 안되는 버그 창 깜빡거림
             if (currentItem != null && parentInventoryUI != null)
             {
                 parentInventoryUI.ShowItemInfo(currentItem, eventData.position);
@@ -86,9 +85,6 @@ namespace RpgPractice
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            // Debug.Log($"OnPointerEnter: {gameObject.name} at {Time.time}");
-            // Debug.Log($"Mouse Position: {Input.mousePosition}");
-            // Debug.Log($"Object Position: {transform.position}");
             if (parentInventoryUI != null)
             {
                 parentInventoryUI.HideItemInfo();
@@ -98,8 +94,6 @@ namespace RpgPractice
         // 마우스 클릭 시 아이템 사용
         public void OnPointerClick(PointerEventData eventData)
         {
-            // Debug.Log($"OnPointerExit: {gameObject.name} at {Time.time}");
-            // Debug.Log($"Mouse Position: {Input.mousePosition}");
             
             if (currentItem != null && parentInventoryUI != null)
             {

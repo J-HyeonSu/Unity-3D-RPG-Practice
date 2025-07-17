@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0494179f495f4facafaabf02aba91615, type: 3}
-  m_Name: TestDroptable
+  m_Name: EnemyTestDroptable
   m_EditorClassIdentifier: 
   dropEntries:
   - item: {fileID: 11400000, guid: b087287057273044b9994cfcd13fd8b0, type: 2}
@@ -35,7 +35,23 @@ MonoBehaviour:
     maxQuantity: 1
   - item: {fileID: 11400000, guid: 4a7ef902c5fa1a241b86c48087627eef, type: 2}
     dropChance: 1
-    minQuantity: 5
-    maxQuantity: 5
+    minQuantity: 1
+    maxQuantity: 1
+  - item: {fileID: 11400000, guid: 7d41b58d92869384ebbcf8b26153f769, type: 2}
+    dropChance: 1
+    minQuantity: 1
+    maxQuantity: 1
+  - item: {fileID: 11400000, guid: 1b0d9fde3ba08bb4c9940e76b7e096cb, type: 2}
+    dropChance: 1
+    minQuantity: 1
+    maxQuantity: 1
+  - item: {fileID: 11400000, guid: f46b94397e24e7e46b022d7dca7071a1, type: 2}
+    dropChance: 1
+    minQuantity: 1
+    maxQuantity: 1
+  - item: {fileID: 11400000, guid: 48f811c5688287c4cb9da011f30adac3, type: 2}
+    dropChance: 1
+    minQuantity: 1
+    maxQuantity: 1
   guaranteedDropCount: 10
   maxDropCount: 15

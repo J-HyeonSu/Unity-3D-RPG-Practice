@@ -5,6 +5,7 @@ namespace RpgPractice
     {
         Weapon,
         Armor,
+        Accessory,
         Consumable,
         Material,
         Quest,

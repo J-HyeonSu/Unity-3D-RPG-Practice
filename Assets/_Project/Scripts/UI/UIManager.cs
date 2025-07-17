@@ -11,9 +11,6 @@ namespace RpgPractice
         public static UIManager instance;
         public GameObject damagePopupPrefab;
         [SerializeField] private TextMeshProUGUI levelText;
-
-        [SerializeField] private UITargetHealth targetHealth;
-        
         private void Awake()
         {
             instance = this;
