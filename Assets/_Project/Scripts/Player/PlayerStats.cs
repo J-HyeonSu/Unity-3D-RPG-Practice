@@ -30,6 +30,8 @@ namespace RpgPractice
         //[SerializeField] private FloatEventChannel healthUpdateEvent;
         //[SerializeField] private FloatEventChannel manaUpdateEvent;
 
+        public event Action UpdateBonus;
+
         private int bonusAttack = 0;
         private int bonusDefense = 0;
         private int bonusHealth = 0;
@@ -116,6 +118,7 @@ namespace RpgPractice
             
             UpdateHealthAndMana();
             
+            UpdateBonus?.Invoke();
         }
     }
 }

@@ -56071,7 +56071,7 @@ PrefabInstance:
       objectReference: {fileID: 330709691}
     - target: {fileID: 2070925442191277752, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: CameraDistance
-      value: 6.199998
+      value: 12.6
       objectReference: {fileID: 0}
     - target: {fileID: 2070925442191277752, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: ShoulderOffset.x
@@ -60711,8 +60711,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c7e875ea7d62f14438c32e76cbdd74c2, type: 2}
   - {fileID: 11400000, guid: 258646681a25489439b5a08ecfc286a2, type: 2}
   sword: {fileID: 11400000, guid: 72022a75f03877949b30c0b2333d60c5, type: 2}
-  bow: {fileID: 0}
-  staff: {fileID: 0}
 --- !u!4 &9149905494505769601 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7932749825855565367, guid: 016710874dfb1fa45b45778d86759d8d, type: 3}

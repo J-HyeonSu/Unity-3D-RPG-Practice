@@ -17,6 +17,8 @@ MonoBehaviour:
   damage: 8
   length: 5
   lifeTime: 10
+  baseDamage: 8
+  attackPowerMultiplier: 1
   piercing: 0
   maxHits: 1
   manaCost: 0

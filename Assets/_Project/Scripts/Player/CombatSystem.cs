@@ -18,8 +18,8 @@ namespace RpgPractice
         [SerializeField] private InputReader inputReader;
         [SerializeField] private FloatEventChannel[] skillFloatEventChannels;
         [SerializeField] private SkillSword sword;
-        [SerializeField] private SkillBow bow;
-        [SerializeField] private SkillStaff staff;
+        // [SerializeField] private SkillBow bow;
+        // [SerializeField] private SkillStaff staff;
         
         
         private IWeaponBehaviour currentWeapon;
@@ -27,9 +27,7 @@ namespace RpgPractice
         private bool[] onSkills;
         private bool isCasting;
         private SkillType currentAttack;
-
-        private Mana playerMana;
-        private Health playerHealth;
+        
 
         private SkillData skillData;
 
@@ -59,7 +57,10 @@ namespace RpgPractice
             }
             
             ChangeWeapon(WeaponType.Sword);
-            
+
+            PlayerStats.Instance.UpdateBonus += SetSkillDamage;
+            SetSkillDamage();
+
         }
 
         void OnSkillCooldownComplete(int skillIndex)
@@ -78,12 +79,12 @@ namespace RpgPractice
                 case WeaponType.Sword:
                     newWeapon = sword;
                     break;
-                case WeaponType.Bow:
-                    newWeapon = bow;
-                    break;
-                case WeaponType.Staff:
-                    newWeapon = staff;
-                    break;
+                // case WeaponType.Bow:
+                //     newWeapon = bow;
+                //     break;
+                // case WeaponType.Staff:
+                //     newWeapon = staff;
+                //     break;
             }
             currentWeapon = newWeapon;
                 
@@ -144,19 +145,21 @@ namespace RpgPractice
         {
             // return 타입 -1 = 사망, 0 = 쿨타임, 1성공, 2마나 부족
             if (timers[skillIndex].IsRunning) return 0;
-            if (playerHealth)
+            if (skillData.PlayerHealth)
             {
-                if (playerHealth.IsDead) return -1;
+                if (skillData.PlayerHealth.IsDead) return -1;
             }
 
-            if (playerMana)
+            if (skillData.PlayerMana)
             {
                 float requiredMana = currentWeapon.GetManaCost(skillIndex);
-                if (!playerMana.UseMana(requiredMana)) return 2;
+                if (!skillData.PlayerMana.UseMana(requiredMana)) return 2;
             }
 
             return 1;
         }
+        
+        
         
 
         public void CastingEndAnim()
@@ -184,7 +187,21 @@ namespace RpgPractice
 
         public void NewTarget(Transform target)
         {
-            skillData.Target = target;
+            if (target)
+            {
+                skillData.Target = target;
+            }
+            else
+            {
+                //스킬 비활성화
+            }
+        }
+
+        void SetSkillDamage()
+        {
+            Debug.Log("SetSkillDamage");
+            //stat 변화시 이벤트
+            currentWeapon.SetSkillDamage(PlayerStats.Instance.TotalAttackPower);
         }
         
         

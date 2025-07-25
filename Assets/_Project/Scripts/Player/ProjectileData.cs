@@ -10,10 +10,11 @@ namespace RpgPractice
         
         [Header("Basic Settings")]
         public float speed = 30f; // 투사체 속도
-        public float damage  = 1f; // 데미지
+        public float damage  = 1f; // 계산된 데미지
         public float length = 5f; // 사거리
         public float lifeTime = 3f; // 시간 제한
-        
+        public float baseDamage = 5f; // 기본 스킬데미지 
+        public float attackPowerMultiplier = 1.0f; // 공격력 계수
         
         [Header("Advanced")]
         public bool piercing = false; // 관통 여부
@@ -39,7 +40,10 @@ namespace RpgPractice
         public AudioClip castSound;
         public AudioClip hitSound;
 
-
+        public void SetFinalDamage(float attackPower)
+        {
+            damage = baseDamage + (attackPower * attackPowerMultiplier);
+        }
 
     }
 }

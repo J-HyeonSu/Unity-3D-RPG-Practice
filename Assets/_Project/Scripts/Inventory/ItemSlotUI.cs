@@ -100,8 +100,18 @@ namespace RpgPractice
                 if (eventData.button == PointerEventData.InputButton.Left)
                 {
                     // 좌클릭: 아이템 사용
-                    Debug.Log($"[{currentItem.data.rarity}]{currentItem.data.itemName} 사용");
-                    parentInventoryUI.UseItem(currentItem);
+                    
+                    // 장착된아이템일경우
+                    if (slotIndex >= 100)
+                    {
+                        Debug.Log("장착해제");
+                        InventoryManager.Instance.UnEquipItem(slotIndex);
+                    }
+                    else
+                    {
+                        parentInventoryUI.UseItem(currentItem);    
+                    }
+                    
                 }
                 else if (eventData.button == PointerEventData.InputButton.Right)
                 {

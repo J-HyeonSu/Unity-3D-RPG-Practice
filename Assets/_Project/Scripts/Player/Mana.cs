@@ -6,8 +6,6 @@ namespace RpgPractice
 
     public class Mana : MonoBehaviour
     {
-
-
         [SerializeField] private float maxMana = 100;
         [SerializeField] private float manaRegenRate = 1;
         

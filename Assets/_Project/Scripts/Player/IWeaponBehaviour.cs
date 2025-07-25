@@ -10,5 +10,6 @@
         public void Skill4(SkillData skillData);
         public float GetCooldown(int idx);
         public float GetManaCost(int idx);
+        public void SetSkillDamage(int attackPower);
     }
 }

@@ -123,11 +123,11 @@ namespace RpgPractice
                     break;
                 case ItemType.Accessory:
                     Debug.Log($"악세사리 장착 시도: {item.data.itemName}");
-                    if (!equippedRing1.data)
+                    if (equippedRing1 == null || !equippedRing1.data)
                     {
                         equippedRing1 = item;
                     }
-                    else if (!equippedRing2.data)
+                    else if (equippedRing2 == null || !equippedRing2.data)
                     {
                         equippedRing2 = item;
                     }
@@ -145,6 +145,58 @@ namespace RpgPractice
             }
 
             RemoveItem(item);
+            UpdateEquipmentBonuses();
+            OnInventoryChanged?.Invoke();
+        }
+
+        void UpdateEquipmentBonuses()
+        {
+            int totalAttack = 0;
+            int totalDefense = 0;
+            int totalHealth = 0;
+            int totalMana = 0;
+
+            Item[] equipped = new Item[]{equippedWeapon, equippedArmor, equippedRing1, equippedRing2};
+
+            foreach (var item in equipped)
+            {
+                if (item?.data)
+                {
+                    totalAttack += item.data.attackPower;
+                    totalDefense += item.data.defense;
+                    totalHealth += item.data.healthBonus;
+                    totalMana += item.data.manaBonus;
+                }
+            }
+
+            PlayerStats.Instance.UpdateItemBonuses(totalAttack, totalDefense, totalHealth, totalMana);
+
+        }
+
+        public void UnEquipItem(int slotNum)
+        {
+            if (slotNum == 100)
+            {
+                AddItem(equippedWeapon);
+                equippedWeapon = null;
+            }
+            else if (slotNum == 101)
+            {
+                AddItem(equippedArmor);
+                equippedArmor = null;
+            }
+            else if (slotNum == 102)
+            {
+                AddItem(equippedRing1);
+                equippedRing1 = null;
+            }
+            else if (slotNum == 103)
+            {
+                AddItem(equippedRing2);
+                equippedRing2 = null;
+            }
+
+            UpdateEquipmentBonuses();
             
             OnInventoryChanged?.Invoke();
         }

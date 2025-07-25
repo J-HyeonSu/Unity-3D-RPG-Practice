@@ -17,11 +17,13 @@ MonoBehaviour:
   damage: 5
   length: 5
   lifeTime: 10
+  baseDamage: 5
+  attackPowerMultiplier: 1
   piercing: 0
   maxHits: 1
   manaCost: 0
   cooldown: 0.5
-  manaRestore: 5
+  manaRestore: 10
   knockbackForce: 0
   slowDuration: 0
   slowAmount: 0.5

@@ -66,12 +66,13 @@ namespace RpgPractice
             if (!skills[idx]) return 1;
             return skills[idx].manaCost;
         }
-        
-        
 
-        public void SetDamage(int idx, float damage)
+        public void SetSkillDamage(int attackPower)
         {
-            skills[idx].damage = damage;
+            foreach (var skill in skills)
+            {
+                skill.SetFinalDamage(attackPower);
+            }
         }
 
         private void UseSkill(SkillType skillType, Vector3 position, Vector3 direction, GameObject shooter)

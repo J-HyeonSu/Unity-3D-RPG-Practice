@@ -89,6 +89,11 @@ namespace RpgPractice
                     itemSlots.Add(slotUI);
                 }
             }
+            
+            weaponItemSlot.Initialize(100, this);
+            armorItemSlot.Initialize(101, this); 
+            ring1ItemSlot.Initialize(102, this);
+            ring2ItemSlot.Initialize(103, this);
         }
 
         public void ToggleInventory()
@@ -244,8 +249,7 @@ namespace RpgPractice
         public void UseItem(Item item)
         {
             if (item?.data == null) return;
-
-            Debug.Log($"useItem {item.data.itemName}");
+            
             switch (item.data.itemType)
             {
                 case ItemType.Consumable:
