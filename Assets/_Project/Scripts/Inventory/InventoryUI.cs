@@ -60,6 +60,7 @@ namespace RpgPractice
         {
             if (Input.GetKeyDown(KeyCode.I))
             {
+                
                 ToggleInventory();
             }
         }
@@ -93,6 +94,8 @@ namespace RpgPractice
         public void ToggleInventory()
         {
             isInventoryOpen = !isInventoryOpen;
+            GameManager.instance.SetUIState(isInventoryOpen);
+            
             inventoryPanel.SetActive(isInventoryOpen);
 
             if (isInventoryOpen)

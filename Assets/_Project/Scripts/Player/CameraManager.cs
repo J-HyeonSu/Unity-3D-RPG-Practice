@@ -85,6 +85,7 @@ namespace RpgPractice
 
         private void LateUpdate()
         {
+            if (GameManager.instance.IsUIOpen) return;
             HandleCameraRotation();
         }
 

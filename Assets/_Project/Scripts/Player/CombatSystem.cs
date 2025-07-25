@@ -97,6 +97,7 @@ namespace RpgPractice
 
         private void Update()
         {
+            if (GameManager.instance.IsUIOpen) return;
             for (int i = 0; i < timers.Length; i++)
             {
                 timers[i].Tick(Time.deltaTime);
