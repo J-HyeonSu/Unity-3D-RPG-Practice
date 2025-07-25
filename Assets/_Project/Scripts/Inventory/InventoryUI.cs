@@ -245,6 +245,7 @@ namespace RpgPractice
         {
             if (item?.data == null) return;
 
+            Debug.Log($"useItem {item.data.itemName}");
             switch (item.data.itemType)
             {
                 case ItemType.Consumable:

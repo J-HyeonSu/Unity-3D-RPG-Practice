@@ -133,13 +133,12 @@ namespace RpgPractice
                     }
                     else
                     {
-                        Debug.Log("elsesess");
                         previousEquipment = equippedRing1;
                         equippedRing1 = item;
                     }
                     break;
             }
-
+            
             if (previousEquipment != null)
             {
                 AddItem(previousEquipment);
