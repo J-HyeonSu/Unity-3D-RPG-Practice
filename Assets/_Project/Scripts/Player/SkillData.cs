@@ -9,6 +9,6 @@ namespace RpgPractice
         public Mana PlayerMana;
         public bool IsCombo;
 
-        public GameObject Target;
+        public Transform Target;
     }
 }

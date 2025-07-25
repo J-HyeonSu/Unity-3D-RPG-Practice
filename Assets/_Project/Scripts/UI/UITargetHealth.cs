@@ -17,7 +17,7 @@ namespace RpgPractice
         [SerializeField] private Transform playerTransform;
         [SerializeField] private float hideDelay = 5f;
 
-        private GameObject currentTarget;
+        private Transform currentTarget;
         private Health currentHealth;
         
         private float hideTimer;
@@ -55,7 +55,7 @@ namespace RpgPractice
             }
         }
 
-        public void NewTarget(GameObject target)
+        public void NewTarget(Transform target)
         {
             if (!target)
             {

@@ -234,7 +234,7 @@ namespace RpgPractice
             StartCoroutine(RushAttackCoroutine(data.Target,transform.position, data.Target.transform.position, endDistance, speed, damage));
         }
 
-        IEnumerator RushAttackCoroutine(GameObject target, Vector3 startPos, Vector3 endPos, float endDistance, float speed, float damage)
+        IEnumerator RushAttackCoroutine(Transform target, Vector3 startPos, Vector3 endPos, float endDistance, float speed, float damage)
         {
             startPos.y = endPos.y;
             while (Vector3.Distance(transform.position, endPos) >= endDistance)

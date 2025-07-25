@@ -17,9 +17,9 @@ namespace RpgPractice
 
         [SerializeField] private float resetTargetTime = 2f;
         
-        [SerializeField] private GameObjectEventChannel currentTargetEventChannel;
+        [SerializeField] private TransformEventChannel currentTargetEventChannel;
         
-        private GameObject currentTarget;
+        private Transform currentTarget;
         private Health currentHealth;
         private float targetDistance;
 
@@ -102,7 +102,7 @@ namespace RpgPractice
 
             if (closesEnemy)
             {
-                currentTarget = closesEnemy.gameObject;
+                currentTarget = closesEnemy;
           
                 currentTargetEventChannel?.Invoke(currentTarget);
                 

@@ -181,7 +181,7 @@ namespace RpgPractice
             isCasting = false;
         }
 
-        public void NewTarget(GameObject target)
+        public void NewTarget(Transform target)
         {
             skillData.Target = target;
         }
