@@ -10,6 +10,8 @@
 
 ## 🎥 Demo
 - YouTube: [(유튜브 링크)](https://youtu.be/MW7Uwm47NvU)
+<img width="1312" height="744" alt="{14C1B24E-2546-432A-82CB-A5A13042810B}" src="https://github.com/user-attachments/assets/be91e5cc-d675-4ef5-9abb-48918520984e" />
+
 
 ## ✨ Core Design
 ### Combat
